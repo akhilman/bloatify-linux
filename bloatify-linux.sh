@@ -93,10 +93,10 @@ bootstrap_devel_fedora() {
 }
 
 bootstrap_devel_opensuse() {
-	$SUDO zypper install -y -t pattern \
+	$SUDO zypper install -y --force-resolution -t pattern \
 		devel_basis devel_C_C++ devel_python3 \
 		|| exit $?
-	$SUDO zypper install -y \
+	$SUDO zypper install -y --force-resolution \
 		lazygit \
 		neovim ripgrep ripgrep-fish-completion \
 		valgrind gdb lldb clang{,-tools} \
@@ -134,7 +134,7 @@ bootstrap_rust_fedora() {
 }
 
 bootstrap_rust_opensuse() {
-	$SUDO zypper install -y \
+	$SUDO zypper install -y --force-resolution \
 		rustup \
 		libopenssl-devel \
 		|| exit $?
