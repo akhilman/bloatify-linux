@@ -4,9 +4,9 @@
 
 SUDO=sudo
 
+DESKTOP=false
 DEVEL=false
 RUST=false
-DESKTOP=false
 
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -16,6 +16,10 @@ while [ $# -gt 0 ]; do
 			DEVEL=true;;
 		-r|--rust)
 			RUST=true;;
+		-h|--help)
+			echo "Usage:"
+			echo "	$(basename $0) --desktop --devel --rust"
+			exit 0;;
 		*)
 			echo Unknown argument: \`$1\`
 			exit 1;;
