@@ -1,2 +1,2 @@
 # bloatify-linux
-Script to new new linux installation
+Script to setup new linux installation
