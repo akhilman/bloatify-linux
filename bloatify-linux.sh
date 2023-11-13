@@ -61,7 +61,12 @@ bootstrap_basic_opensuse() {
 # Devel
 
 bootstrap_devel_arch() {
-	echo Unimplemented
+	$SUDO pacman --noconfirm -S --needed \
+		neovim ripgrep \
+		valgrind gdb lldb clang{,-tools-extra} pkgconf \
+		python-{ipdb,numpy,isort,lsp-{server,black}} ipython \
+		lua lua-language-server \
+		|| exit $?
 }
 
 bootstrap_devel_debian() {
@@ -118,7 +123,11 @@ setup_rustup() {
 }
 
 bootstrap_rust_arch() {
-	echo Unimplemented
+	$SUDO pacman --noconfirm -S --needed \
+		pkgconf openssl rustup \
+		|| exit $?
+	setup_rustup
+	setup_cargo
 }
 
 bootstrap_rust_debian() {
