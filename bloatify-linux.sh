@@ -31,21 +31,21 @@ done
 
 bootstrap_basic_arch() {
 	$SUDO pacman --noconfirm -S --needed \
-		curl wget gnupg fish vim htop \
+		python which less curl wget gnupg fish vim htop \
 		mr vcsh git make \
 		|| exit $?
 }
 
 bootstrap_basic_debian() {
 	$SUDO apt install -y \
-		curl wget gpg fish vim htop \
+		which less curl wget gpg fish vim htop \
 		mr vcsh git make \
 		|| exit $?
 }
 
 bootstrap_basic_fedora() {
 	$SUDO dnf install -y \
-		curl wget gpg fish vim htop \
+		which less curl wget gpg fish vim htop \
 		mr vcsh git make \
 		dnf-plugins-core \
 		|| exit $?
@@ -53,7 +53,7 @@ bootstrap_basic_fedora() {
 
 bootstrap_basic_opensuse() {
 	$SUDO zypper install -y --force-resolution \
-		curl wget gpg fish vim htop \
+		which less curl wget gpg fish vim htop \
 		mr vcsh git make \
 		|| exit $?
 }
