@@ -63,7 +63,7 @@ bootstrap_basic_opensuse() {
 bootstrap_devel_arch() {
 	$SUDO pacman --noconfirm -S --needed \
 		neovim ripgrep \
-		valgrind gdb lldb clang{,-tools-extra} pkgconf \
+		base-devel valgrind gdb lldb clang{,-tools-extra} \
 		python-{ipdb,numpy,isort,lsp-{server,black}} ipython \
 		lua lua-language-server \
 		|| exit $?
@@ -124,7 +124,7 @@ setup_rustup() {
 
 bootstrap_rust_arch() {
 	$SUDO pacman --noconfirm -S --needed \
-		pkgconf openssl rustup \
+		base-devel openssl rustup \
 		|| exit $?
 	setup_rustup
 	setup_cargo
