@@ -62,6 +62,7 @@ bootstrap_basic_opensuse() {
 
 bootstrap_devel_arch() {
 	$SUDO pacman --noconfirm -S --needed \
+		lazygit \
 		neovim ripgrep \
 		base-devel valgrind gdb lldb clang{,-tools-extra} \
 		python-{ipdb,numpy,isort,lsp-{server,black}} ipython \
@@ -89,7 +90,9 @@ bootstrap_devel_debian() {
 
 bootstrap_devel_fedora() {
 	$SUDO dnf copr enable -y yorickpeterse/lua-language-server || exit $?
+	$SUDO dnf copr enable -y atim/lazygit || exit $?
 	$SUDO dnf install -y \
+		lazygit \
 		neovim ripgrep \
 		valgrind gdb lldb clang{,-tools-extra}  \
 		python3-{ipython,ipdb,numpy,isort,lsp-{server,black}} \
