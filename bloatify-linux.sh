@@ -57,7 +57,7 @@ bootstrap_basic_fedora() {
 bootstrap_basic_opensuse() {
 	$SUDO zypper install -y --force-resolution \
 		which less curl wget gpg fish vim vim-data htop \
-		tmux tmux-powerline \
+		tmux tmux-powerline terminfo \
 		mr vcsh git make \
 		|| exit $?
 }
