@@ -67,7 +67,7 @@ bootstrap_basic_opensuse() {
 bootstrap_devel_arch() {
 	$SUDO pacman --noconfirm -S --needed \
 		lazygit \
-		neovim ripgrep \
+		helix ripgrep \
 		base-devel valgrind gdb lldb clang{,-tools-extra} \
 		python-{ipdb,numpy,isort,lsp-{server,black}} ipython \
 		lua lua-language-server \
@@ -97,7 +97,7 @@ bootstrap_devel_fedora() {
 	$SUDO dnf copr enable -y atim/lazygit || exit $?
 	$SUDO dnf install -y \
 		lazygit \
-		neovim ripgrep \
+		helix ripgrep \
 		valgrind gdb lldb clang{,-tools-extra}  \
 		python3-{ipython,ipdb,numpy,isort,lsp-{server,black}} \
 		lua lua-language-server \
@@ -110,7 +110,7 @@ bootstrap_devel_opensuse() {
 		|| exit $?
 	$SUDO zypper install -y --force-resolution \
 		lazygit \
-		neovim ripgrep ripgrep-fish-completion \
+		helix{,-runtime,-fish-completion} ripgrep ripgrep-fish-completion \
 		valgrind gdb lldb clang{,-tools} \
 		deno \
 		python311{,-{devel,python-lsp-{server,black},pylsp-rope,isort,pylint,ipdb,ipython}} \
@@ -165,7 +165,7 @@ setup_dotfiles() {
 		|| vcsh clone https://github.com/akhilman/dotfiles-mr.git || exit $?
 
 	mr_config_dir=$HOME/.config/mr/config.d
-	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-nvim.git"
+	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-helix.git config-nvim.git"
 	for f in $mr_files; do
 		if [ ! -e $mr_config_dir/../available.d/$f ]; then
 			echo Mr confing $f not exists
@@ -190,7 +190,9 @@ setup_dotfiles() {
 	done
 
 	editor_env_file=$env_dir/80-editor.conf
-	if command -v nvim; then
+	if command -v helix; then
+		echo EDITOR=$(command -v helix) | tee $editor_env_file
+	elif command -v nvim; then
 		echo EDITOR=$(command -v nvim) | tee $editor_env_file
 	elif command -v vim; then
 		echo EDITOR=$(command -v vim) | tee $editor_env_file
