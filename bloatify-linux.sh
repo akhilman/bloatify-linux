@@ -33,6 +33,7 @@ bootstrap_basic_arch() {
 	$SUDO pacman --noconfirm -S --needed \
 		python which less curl wget gnupg fish vim htop \
 		tmux powerline \
+		wl-clipboard \
 		mr vcsh git make \
 		|| exit $?
 }
@@ -41,6 +42,7 @@ bootstrap_basic_debian() {
 	$SUDO apt install -y \
 		which less curl wget gpg fish vim htop \
 		tmux powerline \
+		wl-clipboard \
 		mr vcsh git make \
 		|| exit $?
 }
@@ -49,6 +51,7 @@ bootstrap_basic_fedora() {
 	$SUDO dnf install -y \
 		which less curl wget gpg fish vim htop \
 		mr vcsh git make \
+		wl-clipboard \
 		tmux tmux-powerline \
 		dnf-plugins-core \
 		|| exit $?
@@ -58,6 +61,7 @@ bootstrap_basic_opensuse() {
 	$SUDO zypper install -y --force-resolution \
 		which less curl wget gpg fish vim vim-data htop \
 		tmux tmux-powerline terminfo \
+		wl-clipboard{,-fish-completion} \
 		mr vcsh git make \
 		|| exit $?
 }
