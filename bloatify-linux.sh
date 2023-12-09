@@ -27,6 +27,9 @@ while [ $# -gt 0 ]; do
 	shift
 done
 
+XDG_CONFIG_DIR=${XDG_CONFIG_DIR:-$HOME/.config}
+XDG_CACHE_DIR=${XDG_CACHE_DIR:-$HOME/.cache}
+
 # Basic
 
 bootstrap_basic_arch() {
@@ -116,7 +119,6 @@ bootstrap_devel_opensuse() {
 		lazygit \
 		helix{,-runtime,-fish-completion} ripgrep ripgrep-fish-completion \
 		valgrind gdb lldb clang{,-tools} \
-		deno \
 		python311{,-{devel,python-lsp-{server,black},pylsp-rope,isort,pylint,ipdb,ipython}} \
 		lua{54,51}{,-{devel,luarocks}} lua-language-server \
 		|| exit $?
@@ -162,6 +164,57 @@ bootstrap_rust_opensuse() {
 	setup_cargo
 }
 
+# Deno
+
+CSPELL_DICTS="rust ru_ru"
+
+install_deno_tools() {
+	dict_packages=
+	for dict in $CSPELL_DICTS; do
+		dict_packages="$dict_packages npm:@cspell/dict-$dict"
+	done
+
+	deno cache --reload \
+		npm:cspell \
+		npm:diagnostic-languageserver \
+		$dict_packages \
+		|| exit $?
+
+	deno install \
+		--force --allow-read --allow-env --allow-write=$XDG_CONFIG_DIR/configstore \
+		--name=cspell npm:cspell \
+		|| exit $?
+	deno install \
+		--force --allow-read --allow-env --allow-run \
+		--name=diagnostic-languageserver npm:diagnostic-languageserver \
+		|| exit $?
+
+	# for dict in $BUILTIN_CSPELL_DICTS $CSPELL_DICTS; do
+	# 	~/.deno/bin/cspell link add $(ls $XDG_CACHE_DIR/deno/npm/registry.npmjs.org/@cspell/dict-$dict/*/cspell-ext.json | tail -n 1)
+	# done
+}
+
+bootstrap_deno_arch() {
+	$SUDO pacman --noconfirm -S --needed deno \
+		|| exit $?
+	install_deno_tools
+}
+
+bootstrap_deno_debian() {
+	echo unsupported
+}
+
+bootstrap_deno_fedora() {
+	echo unsupported
+}
+
+bootstrap_deno_opensuse() {
+	$SUDO zypper install -y --force-resolution \
+		deno \
+		|| exit $?
+	install_deno_tools
+}
+
 # Dot files
 
 setup_dotfiles() {
@@ -174,7 +227,8 @@ setup_dotfiles() {
 		if [ ! -e $mr_config_dir/../available.d/$f ]; then
 			echo Mr confing $f not exists
 		fi
-		[ -e $mr_config_dir/$f ] || env -C $mr_config_dir ln -vs ../available.d/$f ./ || exit $?
+		f_git=$(echo $f | sed -e 's/\.vcsh$/.ssh.vcsh/' -e 's/\.git$/.ssh.git/')
+		[ -e $mr_config_dir/$f ] || [ -e $mr_config_dir/$f_git] || env -C $mr_config_dir ln -vs ../available.d/$f ./ || exit $?
 	done
  	env -C $HOME mr up || exit $?
 
@@ -188,6 +242,9 @@ setup_dotfiles() {
 	[ -d $HOME/.cargo/bin ] \
 		&& command -v cargo > /dev/null \
 		&& env_files="$env_files 70-path-cargo.conf"
+	[ -d $HOME/.deno/bin ] \
+		&& command -v deno > /dev/null \
+		&& env_files="$env_files 70-path-deno.conf"
 	$DESKTOP && env_files="$env_files 50-pass.conf 50-qt5-style-gnome.conf 50-qt5-style-sway.conf 80-ssh-askpass.conf"
 	for f in $env_files; do
 		[ -e $env_dir/$f ] || env -C $env_dir ln -vs available/$f $f
@@ -255,6 +312,7 @@ bootstrap_basic_$DISTRO
 if $DEVEL; then
 	echo Setting up development tools
 	bootstrap_devel_$DISTRO
+	bootstrap_deno_$DISTRO
 fi
 
 if $RUST; then
