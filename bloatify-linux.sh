@@ -7,6 +7,7 @@ SUDO=sudo
 DESKTOP=false
 DEVEL=false
 RUST=false
+UPGRADE=false
 
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -16,9 +17,11 @@ while [ $# -gt 0 ]; do
 			DEVEL=true;;
 		-r|--rust)
 			RUST=true;;
+		-u|--upgrade)
+			UPGRADE=true;;
 		-h|--help)
 			echo "Usage:"
-			echo "	$(basename $0) --desktop --devel --rust"
+			echo "	$(basename $0) --upgrade --desktop --devel --rust"
 			exit 0;;
 		*)
 			echo Unknown argument: \`$1\`
@@ -29,6 +32,24 @@ done
 
 XDG_CONFIG_DIR=${XDG_CONFIG_DIR:-$HOME/.config}
 XDG_CACHE_DIR=${XDG_CACHE_DIR:-$HOME/.cache}
+
+# Upgrade
+
+upgrade_arch() {
+	$SUDO pacman --noconfirm -Suy --needed || exit $?
+}
+
+upgrade_debian() {
+	$SUDO apt dist-upgrade -y || exit $?
+}
+
+upgrade_fedora() {
+	$SUDO dnf upgrate -y || exit $?
+}
+
+upgrade_opensuse() {
+	$SUDO zypper dist-upgrade -y --force-resolution || exit $?
+}
 
 # Basic
 
@@ -126,6 +147,11 @@ bootstrap_devel_opensuse() {
 
 # Rust
 
+upgrade_cargo() {
+	command -v cargo-install-upgrade > /dev/null \
+		&& cargo-install-upgrade -a
+}
+
 setup_cargo() {
 	cargo install cargo-{edit,criterion,tree,update,outdated} || exit $?
 }
@@ -174,7 +200,7 @@ install_deno_tools() {
 		dict_packages="$dict_packages npm:@cspell/dict-$dict"
 	done
 
-	deno cache --reload \
+	deno cache $1 \
 		npm:cspell \
 		npm:diagnostic-languageserver \
 		$dict_packages \
@@ -192,6 +218,10 @@ install_deno_tools() {
 	# for dict in $BUILTIN_CSPELL_DICTS $CSPELL_DICTS; do
 	# 	~/.deno/bin/cspell link add $(ls $XDG_CACHE_DIR/deno/npm/registry.npmjs.org/@cspell/dict-$dict/*/cspell-ext.json | tail -n 1)
 	# done
+}
+
+upgrade_deno() {
+	command -v deno > /dev/null && install_deno_tools --reload
 }
 
 bootstrap_deno_arch() {
@@ -304,6 +334,13 @@ fi
 if [ -n "$container" -a -d /mnt/shared ]; then
 	echo Setting up shared volume
 	setup_shared
+fi
+
+if $UPGRADE; then
+	echo Upgrading distro
+	upgrade_$DISTRO
+	upgrade_cargo
+	upgrade_deno
 fi
 
 echo Setting up basic tools
