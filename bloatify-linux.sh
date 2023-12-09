@@ -147,9 +147,11 @@ bootstrap_devel_opensuse() {
 
 # Rust
 
-upgrade_cargo() {
+upgrade_rust() {
+	command -v rustup > /dev/null \
+		&& rustup update || exit $?
 	command -v cargo-install-upgrade > /dev/null \
-		&& cargo-install-upgrade -a
+		&& cargo-install-upgrade -a || exit $?
 }
 
 setup_cargo() {
@@ -339,7 +341,7 @@ fi
 if $UPGRADE; then
 	echo Upgrading distro
 	upgrade_$DISTRO
-	upgrade_cargo
+	upgrade_rust
 	upgrade_deno
 fi
 
