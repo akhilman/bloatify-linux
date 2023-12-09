@@ -151,7 +151,7 @@ upgrade_rust() {
 	command -v rustup > /dev/null \
 		&& ( rustup update || exit $? )
 	command -v cargo-install-update > /dev/null \
-		&& ( cargo-install-update -a || exit $? )
+		&& ( cargo-install-update install-update --all || exit $? )
 }
 
 setup_cargo() {
