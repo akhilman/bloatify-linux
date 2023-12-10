@@ -291,9 +291,10 @@ setup_dotfiles() {
 		echo EDITOR=$(command -v vim) | tee $editor_env_file
 	fi
 
-	[ -e $HOME/.profile ] || echo \#!/bin/sh > $HOME/.profile
-	if ! grep -q /.config/environment.d/ $HOME/.profile; then
-		cat >> $HOME/.profile <<EOF
+	if [ x$CONTAINER_MANAGER = xtinkerbox ]; then
+		[ -e $HOME/.profile ] || echo \#!/bin/sh > $HOME/.profile
+		if ! grep -q /.config/environment.d/ $HOME/.profile; then
+			cat >> $HOME/.profile <<EOF
 
 for f in \$HOME/.config/environment.d/*.conf; do
 	while read -r line; do
@@ -302,6 +303,7 @@ for f in \$HOME/.config/environment.d/*.conf; do
 	done < \$f
 done
 EOF
+		fi
 	fi
 }
 
