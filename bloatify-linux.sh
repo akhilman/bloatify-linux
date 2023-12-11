@@ -54,40 +54,60 @@ upgrade_opensuse() {
 # Basic
 
 bootstrap_basic_arch() {
-	$SUDO pacman --noconfirm -S --needed \
+	pkgs=(\
 		python which less curl wget gnupg fish vim htop \
 		tmux powerline \
-		wl-clipboard \
 		mr vcsh git make \
-		|| exit $?
+		)
+	if [ -n "$WAYLAND_DISPLAY" ]; then
+		pkgs=(${pkgs[*]} \
+			wl-clipboard \
+			)
+	fi
+	$SUDO pacman --noconfirm -S --needed ${pkgs[*]} || exit $?
 }
 
 bootstrap_basic_debian() {
-	$SUDO apt install -y \
+	pkgs=(\
 		which less curl wget gpg fish vim htop \
 		tmux powerline \
-		wl-clipboard \
 		mr vcsh git make \
-		|| exit $?
+		)
+	if [ -n "$WAYLAND_DISPLAY" ]; then
+		pkgs=(${pkgs[*]} \
+			wl-clipboard \
+			)
+	fi
+	$SUDO apt install -y ${pkgs[*]} || exit $?
 }
 
 bootstrap_basic_fedora() {
-	$SUDO dnf install -y \
+	pkgs=(\
 		which less curl wget gpg fish vim htop \
 		mr vcsh git make \
-		wl-clipboard \
 		tmux tmux-powerline \
 		dnf-plugins-core \
-		|| exit $?
+		)
+	if [ -n "$WAYLAND_DISPLAY" ]; then
+		pkgs=(${pkgs[*]} \
+			wl-clipboard \
+			)
+	fi
+	$SUDO dnf install -y ${pkgs[*]} || exit $?
 }
 
 bootstrap_basic_opensuse() {
-	$SUDO zypper install -y --force-resolution \
+	pkgs=(\
 		which less curl wget gpg fish vim vim-data htop \
 		tmux tmux-powerline terminfo \
-		wl-clipboard{,-fish-completion} \
 		mr vcsh git make \
-		|| exit $?
+		)
+	if [ -n "$WAYLAND_DISPLAY" ]; then
+		pkgs=(${pkgs[*]} \
+			wl-clipboard{,-fish-completion} \
+			)
+	fi
+	$SUDO zypper install -y --force-resolution ${pkgs[*]} || exit $?
 }
 
 # Devel
