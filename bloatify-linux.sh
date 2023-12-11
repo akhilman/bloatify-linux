@@ -55,7 +55,8 @@ upgrade_opensuse() {
 
 bootstrap_basic_arch() {
 	pkgs=(\
-		python which less curl wget gnupg fish vim htop \
+		python which less curl wget gnupg fish htop \
+		vim helix ripgrep \
 		tmux powerline \
 		mr vcsh git make \
 		)
@@ -83,7 +84,8 @@ bootstrap_basic_debian() {
 
 bootstrap_basic_fedora() {
 	pkgs=(\
-		which less curl wget gpg fish vim htop \
+		which less curl wget gpg fish htop \
+		vim helix ripgrep \
 		mr vcsh git make \
 		tmux tmux-powerline \
 		dnf-plugins-core \
@@ -98,7 +100,10 @@ bootstrap_basic_fedora() {
 
 bootstrap_basic_opensuse() {
 	pkgs=(\
-		which less curl wget gpg fish vim vim-data htop \
+		which less curl wget gpg fish htop \
+		vim vim-data \
+		helix{,-runtime,-fish-completion} \
+		ripgrep ripgrep-fish-completion \
 		tmux tmux-powerline terminfo \
 		mr vcsh git make \
 		)
@@ -115,7 +120,6 @@ bootstrap_basic_opensuse() {
 bootstrap_devel_arch() {
 	$SUDO pacman --noconfirm -S --needed \
 		lazygit \
-		helix ripgrep \
 		base-devel valgrind gdb lldb clang{,-tools-extra} \
 		python-{ipdb,numpy,isort,lsp-{server,black}} ipython \
 		lua lua-language-server \
@@ -145,7 +149,6 @@ bootstrap_devel_fedora() {
 	$SUDO dnf copr enable -y atim/lazygit || exit $?
 	$SUDO dnf install -y \
 		lazygit \
-		helix ripgrep \
 		valgrind gdb lldb clang{,-tools-extra}  \
 		python3-{ipython,ipdb,numpy,isort,lsp-{server,black}} \
 		lua lua-language-server \
@@ -158,7 +161,6 @@ bootstrap_devel_opensuse() {
 		|| exit $?
 	$SUDO zypper install -y --force-resolution \
 		lazygit \
-		helix{,-runtime,-fish-completion} ripgrep ripgrep-fish-completion \
 		valgrind gdb lldb clang{,-tools} \
 		python311{,-{devel,python-lsp-{server,black},pylsp-rope,isort,pylint,ipdb,ipython}} \
 		lua{54,51}{,-{devel,luarocks}} lua-language-server \
