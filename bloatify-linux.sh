@@ -277,7 +277,8 @@ install_deno_tools() {
 }
 
 upgrade_deno() {
-	command -v deno > /dev/null && install_deno_tools --reload
+	command -v deno > /dev/null \
+	&& install_deno_tools --reload
 }
 
 bootstrap_deno_arch() {
@@ -362,6 +363,15 @@ EOF
 	fi
 }
 
+upgrade_dotfiles() {
+	command -v mr > /dev/null && [ -f $HOME/.mrconfig ] \
+		&& env -C $HOME mr up || exit $?
+	command -v fish > /dev/null && [ -f $HOME/.config/fish/Makefile ] \
+		&& make -C $HOME/.config/fish update
+}
+
+# Shared volume
+
 setup_shared() {
 	$SUDO chmod a+rwX /mnt/shared
 	for dir in $HOME/{.cargo,.rustup,.cache/{pip,deno}}; do
@@ -391,10 +401,11 @@ else
 fi
 
 if $UPGRADE; then
-	echo Upgrading distro
+	echo Upgrading
 	upgrade_$DISTRO
 	upgrade_rust
 	upgrade_deno
+	upgrade_dotfiles
 fi
 
 if $BASIC; then
