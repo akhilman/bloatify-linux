@@ -11,17 +11,19 @@ UPGRADE=false
 
 while [ $# -gt 0 ]; do
 	case $1 in
-		-D|--desktop)
+		-D|--desktop) # Install desktop relaited stuff.
 			DESKTOP=true;;
-		-d|--devel)
+		-d|--devel) # Install development tools.
 			DEVEL=true;;
-		-r|--rust)
+		-r|--rust) # Install Rust.
 			RUST=true;;
-		-u|--upgrade)
+		-u|--upgrade) # Upgrade everything.
 			UPGRADE=true;;
-		-h|--help)
+		-h|--help) # Show help.
 			echo "Usage:"
-			echo "	$(basename $0) --upgrade --desktop --devel --rust"
+			echo "	$(basename $0) [options]"
+			echo "Options:"
+			cat $0 | sed -n 's/^\s*\(-\w\)|\(--\w\+\))\s\+#\s\+\(.*\)$/\t\1, \2\t\3/p'
 			exit 0;;
 		*)
 			echo Unknown argument: \`$1\`
