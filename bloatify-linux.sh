@@ -8,6 +8,7 @@ DESKTOP=false
 DEVEL=false
 RUST=false
 UPGRADE=false
+YES=false
 
 while [ $# -gt 0 ]; do
 	case $1 in
@@ -19,6 +20,8 @@ while [ $# -gt 0 ]; do
 			RUST=true;;
 		-u|--upgrade) # upgrade everything
 			UPGRADE=true;;
+		-y|--yes) # do not ask any questions
+			YES=true;;
 		-h|--help) # show help
 			echo "Usage:"
 			echo "	$(basename $0) [options]"
@@ -35,22 +38,34 @@ done
 XDG_CONFIG_DIR=${XDG_CONFIG_DIR:-$HOME/.config}
 XDG_CACHE_DIR=${XDG_CACHE_DIR:-$HOME/.cache}
 
+PACMAN_ARGS="--needed"
+APT_ARGS=""
+DNF_ARGS=""
+ZYPPER_ARGS=""
+
+if $YES; then
+	PACMAN_ARGS="$PACMAN_ARGS --noconfirm"
+	APT_ARGS="$APT_ARGS -y"
+	DNF_ARGS="$DNF_ARGS -y"
+	ZYPPER_ARGS="$ZYPPER_ARGS -y --force-resolution"
+fi
+
 # Upgrade
 
 upgrade_arch() {
-	$SUDO pacman --noconfirm -Suy --needed || exit $?
+	$SUDO pacman -Suy $PACMAN_ARGS || exit $?
 }
 
 upgrade_debian() {
-	$SUDO apt-get upgrade -y || exit $?
+	$SUDO apt-get upgrade $APT_ARGS || exit $?
 }
 
 upgrade_fedora() {
-	$SUDO dnf upgrate -y || exit $?
+	$SUDO dnf upgrate $DNF_ARGS || exit $?
 }
 
 upgrade_opensuse() {
-	$SUDO zypper upgrade -y --force-resolution || exit $?
+	$SUDO zypper upgrade $ZYPPER_ARGS || exit $?
 }
 
 # Basic
@@ -67,7 +82,7 @@ bootstrap_basic_arch() {
 			wl-clipboard \
 			)
 	fi
-	$SUDO pacman --noconfirm -S --needed $pkgs || exit $?
+	$SUDO pacman -S $PACMAN_ARGS $pkgs || exit $?
 }
 
 bootstrap_basic_debian() {
@@ -81,7 +96,7 @@ bootstrap_basic_debian() {
 			wl-clipboard \
 			)
 	fi
-	$SUDO apt-get install -y $pkgs || exit $?
+	$SUDO apt-get install $APT_ARGS $pkgs || exit $?
 }
 
 bootstrap_basic_fedora() {
@@ -97,7 +112,7 @@ bootstrap_basic_fedora() {
 			wl-clipboard \
 			)
 	fi
-	$SUDO dnf install -y $pkgs || exit $?
+	$SUDO dnf install $DNF_ARGS $pkgs || exit $?
 }
 
 bootstrap_basic_opensuse() {
@@ -114,13 +129,13 @@ bootstrap_basic_opensuse() {
 			wl-clipboard{,-fish-completion} \
 			)
 	fi
-	$SUDO zypper install -y --force-resolution $pkgs || exit $?
+	$SUDO zypper install $ZYPPER_ARGS $pkgs || exit $?
 }
 
 # Devel
 
 bootstrap_devel_arch() {
-	$SUDO pacman --noconfirm -S --needed \
+	$SUDO pacman -S $PACMAN_ARGS \
 		lazygit \
 		base-devel valgrind gdb lldb clang{,-tools-extra} \
 		python-{ipdb,numpy,isort,lsp-{server,black}} ipython \
@@ -136,7 +151,7 @@ bootstrap_devel_debian() {
 	# 	echo 'deb [signed-by=/usr/share/keyrings/makedeb-archive-keyring.gpg arch=all] https://proget.makedeb.org/ makedeb main' | $SUDO tee /etc/apt/sources.list.d/makedeb.list || exit $?
 	#
 	# 	$SUDO apt-get update || exit $?
-	# 	$SUDO apt-get install -y makedeb || exit $?
+	# 	$SUDO apt-get install $APT_ARGS makedeb || exit $?
 	#
 	# 	tmpdir=/tmp/makedeb
 	# 	[ -d $tmpdir/mist ] || git clone 'https://mpr.makedeb.org/mist' $tmpdir/mist
@@ -147,9 +162,9 @@ bootstrap_devel_debian() {
 }
 
 bootstrap_devel_fedora() {
-	$SUDO dnf copr enable -y yorickpeterse/lua-language-server || exit $?
-	$SUDO dnf copr enable -y atim/lazygit || exit $?
-	$SUDO dnf install -y \
+	$SUDO dnf copr enable $DNF_ARGS yorickpeterse/lua-language-server || exit $?
+	$SUDO dnf copr enable $DNF_ARGS atim/lazygit || exit $?
+	$SUDO dnf install $DNF_ARGS \
 		lazygit \
 		valgrind gdb lldb clang{,-tools-extra}  \
 		python3-{ipython,ipdb,numpy,isort,lsp-{server,black}} \
@@ -158,10 +173,10 @@ bootstrap_devel_fedora() {
 }
 
 bootstrap_devel_opensuse() {
-	$SUDO zypper install -y --force-resolution -t pattern \
+	$SUDO zypper install $ZYPPER_ARGS -t pattern \
 		devel_basis devel_C_C++ devel_python3 \
 		|| exit $?
-	$SUDO zypper install -y --force-resolution \
+	$SUDO zypper install $ZYPPER_ARGS \
 		lazygit \
 		valgrind gdb lldb clang{,-tools} \
 		python311{,-{devel,python-lsp-{server,black},pylsp-rope,isort,pylint,ipdb,ipython}} \
@@ -188,7 +203,7 @@ setup_rustup() {
 }
 
 bootstrap_rust_arch() {
-	$SUDO pacman --noconfirm -S --needed \
+	$SUDO pacman -S $PACMAN_ARGS \
 		base-devel openssl rustup \
 		|| exit $?
 	setup_rustup
@@ -200,7 +215,7 @@ bootstrap_rust_debian() {
 }
 
 bootstrap_rust_fedora() {
-	$SUDO dnf install -y \
+	$SUDO dnf install $DNF_ARGS \
 		cargo rust-analyzer clippy rustfmt\
 		openssl-devel \
 		|| exit $?
@@ -208,7 +223,7 @@ bootstrap_rust_fedora() {
 }
 
 bootstrap_rust_opensuse() {
-	$SUDO zypper install -y --force-resolution \
+	$SUDO zypper install $ZYPPER_ARGS \
 		rustup \
 		libopenssl-devel \
 		|| exit $?
@@ -251,7 +266,7 @@ upgrade_deno() {
 }
 
 bootstrap_deno_arch() {
-	$SUDO pacman --noconfirm -S --needed deno \
+	$SUDO pacman -S $PACMAN_ARGS deno \
 		|| exit $?
 	install_deno_tools
 }
@@ -265,7 +280,7 @@ bootstrap_deno_fedora() {
 }
 
 bootstrap_deno_opensuse() {
-	$SUDO zypper install -y --force-resolution \
+	$SUDO zypper install $ZYPPER_ARGS \
 		deno \
 		|| exit $?
 	install_deno_tools
