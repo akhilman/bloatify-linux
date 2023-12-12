@@ -390,11 +390,6 @@ else
 	exit 1
 fi
 
-if [ -n "$container" -a -d /mnt/shared ]; then
-	echo Setting up shared volume
-	setup_shared
-fi
-
 if $UPGRADE; then
 	echo Upgrading distro
 	upgrade_$DISTRO
@@ -405,6 +400,11 @@ fi
 if $BASIC; then
 	echo Setting up basic tools
 	bootstrap_basic_$DISTRO
+
+	if [ -n "$container" -a -d /mnt/shared ]; then
+		echo Setting up shared volume
+		setup_shared
+	fi
 fi
 
 if $DEVEL; then
