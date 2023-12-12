@@ -40,7 +40,7 @@ upgrade_arch() {
 }
 
 upgrade_debian() {
-	$SUDO apt upgrade -y || exit $?
+	$SUDO apt-get upgrade -y || exit $?
 }
 
 upgrade_fedora() {
@@ -79,7 +79,7 @@ bootstrap_basic_debian() {
 			wl-clipboard \
 			)
 	fi
-	$SUDO apt install -y $pkgs || exit $?
+	$SUDO apt-get install -y $pkgs || exit $?
 }
 
 bootstrap_basic_fedora() {
@@ -133,8 +133,8 @@ bootstrap_devel_debian() {
 	# 	curl -L 'https://proget.makedeb.org/debian-feeds/makedeb.pub' | gpg --dearmor | $SUDO tee /usr/share/keyrings/makedeb-archive-keyring.gpg 1> /dev/null || exit $?
 	# 	echo 'deb [signed-by=/usr/share/keyrings/makedeb-archive-keyring.gpg arch=all] https://proget.makedeb.org/ makedeb main' | $SUDO tee /etc/apt/sources.list.d/makedeb.list || exit $?
 	#
-	# 	$SUDO apt update || exit $?
-	# 	$SUDO apt install -y makedeb || exit $?
+	# 	$SUDO apt-get update || exit $?
+	# 	$SUDO apt-get install -y makedeb || exit $?
 	#
 	# 	tmpdir=/tmp/makedeb
 	# 	[ -d $tmpdir/mist ] || git clone 'https://mpr.makedeb.org/mist' $tmpdir/mist
