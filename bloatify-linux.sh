@@ -15,20 +15,20 @@ YES=false
 
 while [ $# -gt 0 ]; do
 	case $1 in
-		-b|--basic) # install basic tools
+		-b|--basic) # install basic tools (basic, dotfiles)
 			DOTFILES=true
 			BASIC=true;;
-		-D|--desktop) # install desktop relaited stuff
+		-D|--desktop) # install desktop relaited stuff (basic, desktop, dotfiles)
 			DOTFILES=true
 			BASIC=true
 			DESKTOP=true;;
-		-n|--deno) # install Deno and tools running with Deno
-			DENO=true;;
-		-d|--devel) # install development tools
+		-d|--devel) # install development tools (basic, devel, deno, dotfiles)
 			DOTFILES=true
 			BASIC=true
 			DENO=true
 			DEVEL=true;;
+		-n|--deno) # install Deno and tools running with Deno
+			DENO=true;;
 		-r|--rust) # install Rust
 			RUST=true;;
 		-t|--dotfiles) # install dotfiles
@@ -287,11 +287,11 @@ bootstrap_deno_arch() {
 }
 
 bootstrap_deno_debian() {
-	echo unsupported
+	echo Unsupported
 }
 
 bootstrap_deno_fedora() {
-	echo unsupported
+	echo Unsupported
 }
 
 bootstrap_deno_opensuse() {
@@ -412,7 +412,7 @@ if $DEVEL; then
 fi
 
 if $RUST; then
-	echo Setting up rust
+	echo Setting up Rust
 	bootstrap_rust_$DISTRO
 fi
 
