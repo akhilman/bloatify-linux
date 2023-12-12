@@ -19,7 +19,7 @@ while [ $# -gt 0 ]; do
 		-b|--basic) # install basic tools (basic, dotfiles)
 			DOTFILES=true
 			BASIC=true;;
-		-D|--desktop) # install desktop relaited stuff (basic, desktop, dotfiles)
+		-D|--desktop) # install desktop relaited stuff (basic, desktop, dotfiles, flatpack)
 			DOTFILES=true
 			BASIC=true
 			FLATPAK=true
