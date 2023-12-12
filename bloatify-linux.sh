@@ -9,6 +9,7 @@ DENO=false
 DESKTOP=false
 DEVEL=false
 DOTFILES=false
+FLATPAK=false
 RUST=false
 UPGRADE=false
 YES=false
@@ -21,6 +22,7 @@ while [ $# -gt 0 ]; do
 		-D|--desktop) # install desktop relaited stuff (basic, desktop, dotfiles)
 			DOTFILES=true
 			BASIC=true
+			FLATPAK=true
 			DESKTOP=true;;
 		-d|--devel) # install development tools (basic, devel, deno, dotfiles)
 			DOTFILES=true
@@ -197,6 +199,37 @@ bootstrap_devel_opensuse() {
 		python311{,-{devel,python-lsp-{server,black},pylsp-rope,isort,pylint,ipdb,ipython}} \
 		lua{54,51}{,-{devel,luarocks}} lua-language-server \
 		|| exit $?
+}
+
+# Flatpak
+
+setup_flatpak() {
+	echo Flatpak support not yet done
+}
+
+bootstrap_flatpak_arch() {
+	setup_flatpak
+}
+
+bootstrap_flatpak_debian() {
+	setup_flatpak
+}
+
+bootstrap_flatpak_fedora() {
+	setup_flatpak
+}
+
+bootstrap_flatpak_opensuse() {
+	setup_flatpak
+}
+
+upgrade_flatpak() {
+	command -v flatpak > /dev/null || return
+	FLATPAK_ARGS=""
+	if $YES; then
+		FLATPAK_ARGS="$FLATPAK_ARGS --assumeyes --noninteracpive"
+	fi
+	flatpak update $FLATPAK_ARGS
 }
 
 # Rust
@@ -403,6 +436,7 @@ fi
 if $UPGRADE; then
 	echo Upgrading
 	upgrade_$DISTRO
+	upgrade_flatpak
 	upgrade_rust
 	upgrade_deno
 	upgrade_dotfiles
@@ -416,6 +450,11 @@ if $BASIC; then
 		echo Setting up shared volume
 		setup_shared
 	fi
+fi
+
+if $FLATPAK; then
+	echo Setting up flatpak
+	bootstrap_flatpak_$DISTRO
 fi
 
 if $DEVEL; then
