@@ -4,6 +4,7 @@
 
 SUDO=sudo
 
+DENO=false
 DESKTOP=false
 DEVEL=false
 RUST=false
@@ -14,7 +15,10 @@ while [ $# -gt 0 ]; do
 	case $1 in
 		-D|--desktop) # install desktop relaited stuff
 			DESKTOP=true;;
+		-n|--deno) # install Deno and tools running with Deno
+			DENO=true;;
 		-d|--devel) # install development tools
+			DENO=true
 			DEVEL=true;;
 		-r|--rust) # install Rust
 			RUST=true;;
@@ -392,12 +396,16 @@ bootstrap_basic_$DISTRO
 if $DEVEL; then
 	echo Setting up development tools
 	bootstrap_devel_$DISTRO
-	bootstrap_deno_$DISTRO
 fi
 
 if $RUST; then
 	echo Setting up rust
 	bootstrap_rust_$DISTRO
+fi
+
+if $DENO; then
+	echo Setting up Deno
+	bootstrap_deno_$DISTRO
 fi
 
 echo Setting up dotfiles
