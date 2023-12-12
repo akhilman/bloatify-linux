@@ -203,6 +203,11 @@ bootstrap_devel_opensuse() {
 
 # Flatpak
 
+FLATPAK_ARGS=""
+if $YES; then
+	FLATPAK_ARGS="$FLATPAK_ARGS --assumeyes --noninteracpive"
+fi
+
 setup_flatpak() {
 	echo Flatpak support not yet done
 }
@@ -225,10 +230,6 @@ bootstrap_flatpak_opensuse() {
 
 upgrade_flatpak() {
 	command -v flatpak > /dev/null || return
-	FLATPAK_ARGS=""
-	if $YES; then
-		FLATPAK_ARGS="$FLATPAK_ARGS --assumeyes --noninteracpive"
-	fi
 	flatpak update $FLATPAK_ARGS
 }
 
