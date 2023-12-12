@@ -4,6 +4,7 @@
 
 SUDO=sudo
 
+BASIC=false
 DENO=false
 DESKTOP=false
 DEVEL=false
@@ -13,11 +14,15 @@ YES=false
 
 while [ $# -gt 0 ]; do
 	case $1 in
+		-b|--basic) # install basic tools
+			BASIC=true;;
 		-D|--desktop) # install desktop relaited stuff
+			BASIC=true
 			DESKTOP=true;;
 		-n|--deno) # install Deno and tools running with Deno
 			DENO=true;;
 		-d|--devel) # install development tools
+			BASIC=true
 			DENO=true
 			DEVEL=true;;
 		-r|--rust) # install Rust
@@ -390,8 +395,10 @@ if $UPGRADE; then
 	upgrade_deno
 fi
 
-echo Setting up basic tools
-bootstrap_basic_$DISTRO
+if $BASIC; then
+	echo Setting up basic tools
+	bootstrap_basic_$DISTRO
+fi
 
 if $DEVEL; then
 	echo Setting up development tools
