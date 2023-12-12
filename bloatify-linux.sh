@@ -11,15 +11,15 @@ UPGRADE=false
 
 while [ $# -gt 0 ]; do
 	case $1 in
-		-D|--desktop) # Install desktop relaited stuff.
+		-D|--desktop) # install desktop relaited stuff
 			DESKTOP=true;;
-		-d|--devel) # Install development tools.
+		-d|--devel) # install development tools
 			DEVEL=true;;
-		-r|--rust) # Install Rust.
+		-r|--rust) # install Rust
 			RUST=true;;
-		-u|--upgrade) # Upgrade everything.
+		-u|--upgrade) # upgrade everything
 			UPGRADE=true;;
-		-h|--help) # Show help.
+		-h|--help) # show help
 			echo "Usage:"
 			echo "	$(basename $0) [options]"
 			echo "Options:"
