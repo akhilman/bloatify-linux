@@ -40,7 +40,7 @@ upgrade_arch() {
 }
 
 upgrade_debian() {
-	$SUDO apt dist-upgrade -y || exit $?
+	$SUDO apt upgrade -y || exit $?
 }
 
 upgrade_fedora() {
@@ -48,7 +48,7 @@ upgrade_fedora() {
 }
 
 upgrade_opensuse() {
-	$SUDO zypper dist-upgrade -y --force-resolution || exit $?
+	$SUDO zypper upgrade -y --force-resolution || exit $?
 }
 
 # Basic
