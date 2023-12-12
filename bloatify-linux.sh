@@ -8,6 +8,7 @@ BASIC=false
 DENO=false
 DESKTOP=false
 DEVEL=false
+DOTFILES=false
 RUST=false
 UPGRADE=false
 YES=false
@@ -15,18 +16,23 @@ YES=false
 while [ $# -gt 0 ]; do
 	case $1 in
 		-b|--basic) # install basic tools
+			DOTFILES=true
 			BASIC=true;;
 		-D|--desktop) # install desktop relaited stuff
+			DOTFILES=true
 			BASIC=true
 			DESKTOP=true;;
 		-n|--deno) # install Deno and tools running with Deno
 			DENO=true;;
 		-d|--devel) # install development tools
+			DOTFILES=true
 			BASIC=true
 			DENO=true
 			DEVEL=true;;
 		-r|--rust) # install Rust
 			RUST=true;;
+		-t|--dotfiles) # install dotfiles
+			DOTFILES=true;;
 		-u|--upgrade) # upgrade everything
 			UPGRADE=true;;
 		-y|--yes) # do not ask any questions
@@ -415,6 +421,8 @@ if $DENO; then
 	bootstrap_deno_$DISTRO
 fi
 
-echo Setting up dotfiles
-setup_dotfiles
+if $DOTFILES; then
+	echo Setting up dotfiles
+	setup_dotfiles
+fi
 
