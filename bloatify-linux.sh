@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 # set -x
 
@@ -54,36 +54,36 @@ upgrade_opensuse() {
 # Basic
 
 bootstrap_basic_arch() {
-	pkgs=(\
+	pkgs=$(echo \
 		python which less curl wget gnupg fish htop \
 		vim helix ripgrep \
 		tmux powerline \
 		mr vcsh git make \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
-		pkgs=(${pkgs[*]} \
+		pkgs=$(echo $pkgs \
 			wl-clipboard \
 			)
 	fi
-	$SUDO pacman --noconfirm -S --needed ${pkgs[*]} || exit $?
+	$SUDO pacman --noconfirm -S --needed $pkgs || exit $?
 }
 
 bootstrap_basic_debian() {
-	pkgs=(\
+	pkgs=$(echo \
 		which less curl wget gpg fish vim htop \
 		tmux powerline \
 		mr vcsh git make \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
-		pkgs=(${pkgs[*]} \
+		pkgs=$(echo $pkgs \
 			wl-clipboard \
 			)
 	fi
-	$SUDO apt install -y ${pkgs[*]} || exit $?
+	$SUDO apt install -y $pkgs || exit $?
 }
 
 bootstrap_basic_fedora() {
-	pkgs=(\
+	pkgs=$(echo \
 		which less curl wget gpg fish htop \
 		vim helix ripgrep \
 		mr vcsh git make \
@@ -91,15 +91,15 @@ bootstrap_basic_fedora() {
 		dnf-plugins-core \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
-		pkgs=(${pkgs[*]} \
+		pkgs=$(echo $pkgs \
 			wl-clipboard \
 			)
 	fi
-	$SUDO dnf install -y ${pkgs[*]} || exit $?
+	$SUDO dnf install -y $pkgs || exit $?
 }
 
 bootstrap_basic_opensuse() {
-	pkgs=(\
+	pkgs=$(echo \
 		which less curl wget gpg fish htop \
 		vim vim-data \
 		helix{,-runtime,-fish-completion} \
@@ -108,11 +108,11 @@ bootstrap_basic_opensuse() {
 		mr vcsh git make \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
-		pkgs=(${pkgs[*]} \
+		pkgs=$(echo $pkgs \
 			wl-clipboard{,-fish-completion} \
 			)
 	fi
-	$SUDO zypper install -y --force-resolution ${pkgs[*]} || exit $?
+	$SUDO zypper install -y --force-resolution $pkgs || exit $?
 }
 
 # Devel
