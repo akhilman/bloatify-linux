@@ -82,7 +82,7 @@ upgrade_fedora() {
 }
 
 upgrade_opensuse() {
-	$SUDO zypper upgrade $ZYPPER_ARGS || exit $?
+	$SUDO zypper update $ZYPPER_ARGS || exit $?
 }
 
 # Basic
