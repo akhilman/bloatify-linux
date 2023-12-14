@@ -343,8 +343,11 @@ bootstrap_deno_opensuse() {
 # Dot files
 
 setup_dotfiles() {
-	[ -e $HOME/.config/vcsh/repo.d/dotfiles-mr.git ] \
-		|| vcsh clone https://github.com/akhilman/dotfiles-mr.git || exit $?
+	if [ -e $HOME/.config/vcsh/repo.d/dotfiles-mr.git ]; then
+		vcsh dotfiles-mr pull || exit $?
+	else
+		vcsh clone https://github.com/akhilman/dotfiles-mr.git || exit $?
+	fi
 
 	mr_config_dir=$HOME/.config/mr/config.d
 	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-helix.git config-nvim.git config-ranger.git"
