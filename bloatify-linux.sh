@@ -361,9 +361,11 @@ setup_dotfiles() {
 	done
  	env -C $HOME mr up || exit $?
 
-	if command -v fish > /dev/null; then
+	fish_path=$(command -v fish)
+	if [ -n "$fish_path" ]; then
 		make -C ~/.config/fish install || exit $?
-		$SUDO usermod --shell $(command -v fish) $(whoami) || exit $?
+		[ $(getent passwd $(id -u) | cut -d: -f7) = $fish_path ] \
+			|| $SUDO usermod --shell $fish_path $(whoami) || exit $?
 	fi
 
 	env_dir=$HOME/.config/environment.d
