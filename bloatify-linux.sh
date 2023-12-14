@@ -92,6 +92,7 @@ bootstrap_basic_arch() {
 		python which less curl wget gnupg fish htop \
 		vim helix ripgrep \
 		tmux powerline \
+		ranger highlight \
 		mr vcsh git make \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
@@ -106,6 +107,7 @@ bootstrap_basic_debian() {
 	pkgs=$(echo \
 		which less curl wget gpg fish vim htop \
 		tmux powerline \
+		ranger highlight \
 		mr vcsh git make \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
@@ -122,6 +124,7 @@ bootstrap_basic_fedora() {
 		vim helix ripgrep \
 		mr vcsh git make \
 		tmux tmux-powerline \
+		ranger highlight \
 		dnf-plugins-core \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
@@ -139,6 +142,7 @@ bootstrap_basic_opensuse() {
 		helix{,-runtime,-fish-completion} \
 		ripgrep ripgrep-fish-completion \
 		tmux tmux-powerline terminfo \
+		ranger highlight{,-fish-completion} \
 		mr vcsh git make \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
@@ -343,7 +347,7 @@ setup_dotfiles() {
 		|| vcsh clone https://github.com/akhilman/dotfiles-mr.git || exit $?
 
 	mr_config_dir=$HOME/.config/mr/config.d
-	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-helix.git config-nvim.git"
+	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-helix.git config-nvim.git config-ranger.git"
 	for f in $mr_files; do
 		if [ ! -e $mr_config_dir/../available.d/$f ]; then
 			echo Mr confing $f not exists
