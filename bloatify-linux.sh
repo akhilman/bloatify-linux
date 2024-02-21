@@ -301,7 +301,7 @@ install_deno_tools() {
 		|| exit $?
 
 	deno install \
-		--force --allow-read --allow-sys=cups --allow-env \
+		--force --allow-read --allow-sys=cpus --allow-env \
 		--allow-write=$XDG_CONFIG_DIR/configstore \
 		--name=cspell npm:cspell \
 		|| exit $?
