@@ -306,7 +306,7 @@ install_deno_tools() {
 		--name=cspell npm:cspell \
 		|| exit $?
 	deno install \
-		--force --allow-read --allow-env --allow-sys=uid --allow-run \
+		--force --allow-read --allow-env --allow-sys=cpus,uid --allow-run \
 		--name=diagnostic-languageserver npm:diagnostic-languageserver \
 		|| exit $?
 
