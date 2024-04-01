@@ -353,8 +353,9 @@ install_deno_tools() {
 }
 
 upgrade_deno() {
-	command -v deno > /dev/null \
-	&& install_deno_tools --reload
+	deno_bin=$(command -v deno) || return
+	[ -w $deno_bin ] && $deno_bin upgrade || exit $?
+	install_deno_tools --reload || exit $?
 }
 
 bootstrap_deno_arch() {
@@ -364,7 +365,11 @@ bootstrap_deno_arch() {
 }
 
 bootstrap_deno_debian() {
-	echo Unsupported
+	echo Installing Deno
+	curl -fsSL https://deno.land/install.sh | sh \
+		|| exit $?
+	export PATH=$HOME/.deno/bin:$PATH
+	install_deno_tools
 }
 
 bootstrap_deno_fedora() {
