@@ -180,6 +180,10 @@ bootstrap_basic_fedora() {
 }
 
 bootstrap_basic_opensuse() {
+	# Install documentation in containers
+	grep -q '^rpm.install.excludedocs = yes' /etc/zypp/zypp.conf \
+		&& sudo sed -i 's/^\(rpm.install.excludedocs = yes\)/# \1/' /etc/zypp/zypp.conf
+
 	pkgs=$(echo \
 		which less curl wget gpg fish htop unzip \
 		vim vim-data \
