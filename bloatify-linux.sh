@@ -124,7 +124,7 @@ install_helix() {
 
 bootstrap_basic_arch() {
 	pkgs=$(echo \
-		python which less curl wget gnupg fish htop \
+		python which less curl wget gnupg fish htop unzip \
 		vim helix ripgrep \
 		tmux powerline \
 		ranger highlight \
@@ -140,7 +140,7 @@ bootstrap_basic_arch() {
 
 bootstrap_basic_debian() {
 	pkgs=$(echo \
-		which less curl wget gpg fish vim htop \
+		which less curl wget gpg fish vim htop unzip \
 		tmux powerline \
 		ranger highlight \
 		mr vcsh git make \
@@ -156,7 +156,7 @@ bootstrap_basic_debian() {
 
 bootstrap_basic_fedora() {
 	pkgs=$(echo \
-		which less curl wget gpg fish htop \
+		which less curl wget gpg fish htop unzip \
 		vim helix ripgrep \
 		mr vcsh git make \
 		tmux tmux-powerline \
@@ -173,7 +173,7 @@ bootstrap_basic_fedora() {
 
 bootstrap_basic_opensuse() {
 	pkgs=$(echo \
-		which less curl wget gpg fish htop \
+		which less curl wget gpg fish htop unzip \
 		vim vim-data \
 		helix{,-runtime,-fish-completion} \
 		ripgrep ripgrep-fish-completion \
