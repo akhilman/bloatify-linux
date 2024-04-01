@@ -159,6 +159,10 @@ bootstrap_basic_debian() {
 }
 
 bootstrap_basic_fedora() {
+	# Install documentation in containers
+	grep -q '^tsflags=nodocs' /etc/dnf/dnf.conf \
+		&& sudo sed -i 's/^\(tsflags=nodocs\)/# \1/' /etc/dnf/dnf.conf
+
 	pkgs=$(echo \
 		which less curl wget gpg fish htop unzip \
 		vim helix ripgrep \
