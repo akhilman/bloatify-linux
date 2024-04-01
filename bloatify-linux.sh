@@ -75,6 +75,7 @@ upgrade_arch() {
 
 upgrade_debian() {
 	$SUDO apt-get upgrade $APT_ARGS || exit $?
+	install_helix || exit $?
 }
 
 upgrade_fedora() {
@@ -83,6 +84,40 @@ upgrade_fedora() {
 
 upgrade_opensuse() {
 	$SUDO zypper update $ZYPPER_ARGS || exit $?
+}
+
+# Helix
+
+# Usage
+# $ get_latest_github_release "creationix/nvm"
+# v0.31.4
+get_latest_github_release() {
+  curl --silent "https://api.github.com/repos/$1/releases/latest" | # Get latest release from GitHub api
+    grep '"tag_name":' |                                            # Get tag line
+    sed -E 's/.*"([^"]+)".*/\1/'                                    # Pluck JSON value
+}
+
+install_helix() {
+  version=$(get_latest_github_release helix-editor/helix)
+  arch=$(uname -m)
+	if test -e /opt/helix-$version-$arch-linux; then
+		return
+	fi
+	echo Installing Helix $version
+
+  url=https://github.com/helix-editor/helix/releases/download/$version/helix-$version-$arch-linux.tar.xz
+  filename=$(basename $url)
+  tmpdir=/tmp
+  tmpfile=$tmpdir/$filename
+  curl -L -C - -o $tmpfile $url || return $?
+  dirname=helix-$version-$arch-linux
+  prefix=/opt/$dirname
+
+  tar -xJ -C $tmpdir -f $tmpfile || return $?
+  $SUDO cp -r $tmpdir/$dirname $prefix || return $?
+	[ -f /usr/local/bin/helix ] && $SUDO rm /usr/local/bin/helix
+  $SUDO ln -s $prefix/hx /usr/local/bin/helix || return $?
+	rm -r $tmpdir/$dirname $tmpfile || return $?
 }
 
 # Basic
@@ -116,6 +151,7 @@ bootstrap_basic_debian() {
 			)
 	fi
 	$SUDO apt-get install $APT_ARGS $pkgs || exit $?
+	install_helix || exit $?
 }
 
 bootstrap_basic_fedora() {
