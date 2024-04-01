@@ -123,6 +123,10 @@ install_helix() {
 # Basic
 
 bootstrap_basic_arch() {
+	# Install documentation in containers
+	grep -q '^NoExtract\s*=\s*usr/share/man/\* usr/share/info/\*' /etc/pacman.conf \
+		&& sudo sed -i 's/^\(NoExtract\s*=\s*usr\/share\/man\/\* usr\/share\/info\/\*\)/#\1/' /etc/pacman.conf
+
 	pkgs=$(echo \
 		python which less curl wget gnupg fish htop unzip \
 		vim helix ripgrep \
