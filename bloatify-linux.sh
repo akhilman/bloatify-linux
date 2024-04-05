@@ -366,7 +366,9 @@ install_deno_tools() {
 
 upgrade_deno() {
 	deno_bin=$(command -v deno) || return
-	[ -w $deno_bin ] && $deno_bin upgrade || exit $?
+	if [ -w $deno_bin ]; then
+		$deno_bin upgrade || exit $?;
+	fi
 	install_deno_tools --reload || exit $?
 }
 
