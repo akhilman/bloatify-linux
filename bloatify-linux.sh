@@ -295,7 +295,7 @@ upgrade_rust() {
 }
 
 setup_cargo() {
-	cargo install cargo-{edit,criterion,tree,update,outdated} || exit $?
+	cargo install cargo-{criterion,edit,machete,outdated,tree,update} || exit $?
 }
 
 setup_rustup() {
