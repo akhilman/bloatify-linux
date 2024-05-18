@@ -349,12 +349,12 @@ install_deno_tools() {
 		|| exit $?
 
 	deno install \
-		--force --allow-read --allow-sys=cpus,homedir --allow-env \
+		--force --allow-read --allow-sys=cpus --allow-env \
 		--allow-write=$XDG_CONFIG_DIR/configstore \
 		--name=cspell npm:cspell \
 		|| exit $?
 	deno install \
-		--force --allow-read --allow-env --allow-sys=cpus,homedir,uid --allow-run \
+		--force --allow-read --allow-env --allow-sys=cpus,uid --allow-run \
 		--name=diagnostic-languageserver npm:diagnostic-languageserver \
 		|| exit $?
 
