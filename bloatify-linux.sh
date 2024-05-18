@@ -130,7 +130,7 @@ bootstrap_basic_arch() {
 	pkgs=$(echo \
 		python which less curl wget gnupg fish htop unzip \
 		vim helix ripgrep \
-		tmux powerline \
+		tmux \
 		ranger highlight \
 		mr vcsh git make \
 		)
@@ -145,7 +145,7 @@ bootstrap_basic_arch() {
 bootstrap_basic_debian() {
 	pkgs=$(echo \
 		which less curl wget gpg fish vim htop unzip \
-		tmux powerline \
+		tmux \
 		ranger highlight \
 		mr vcsh git make \
 		)
@@ -167,7 +167,7 @@ bootstrap_basic_fedora() {
 		which less curl wget gpg fish htop unzip \
 		vim helix ripgrep \
 		mr vcsh git make \
-		tmux tmux-powerline \
+		tmux \
 		ranger highlight \
 		dnf-plugins-core \
 		)
@@ -189,7 +189,7 @@ bootstrap_basic_opensuse() {
 		vim vim-data \
 		helix{,-runtime,-fish-completion} \
 		ripgrep ripgrep-fish-completion \
-		tmux tmux-powerline terminfo \
+		tmux terminfo \
 		ranger highlight{,-fish-completion} \
 		mr vcsh git make \
 		)
