@@ -312,7 +312,20 @@ bootstrap_rust_arch() {
 }
 
 bootstrap_rust_debian() {
-	echo Unimplemented
+	if $YES; then
+		installer_args="-y"
+	else
+		installer_args=""
+	fi
+	$SUDO apt-get install $APT_ARGS pkg-config libssl-dev
+	if ! command -v rustup > /dev/null; then
+		curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+			| sh -s - $installer_args \
+			|| exit $?
+		. "$HOME/.cargo/env"
+	fi
+	setup_rustup
+	setup_cargo
 }
 
 bootstrap_rust_fedora() {
