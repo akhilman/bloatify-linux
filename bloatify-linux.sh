@@ -379,9 +379,11 @@ bootstrap_deno_arch() {
 
 bootstrap_deno_debian() {
 	echo Installing Deno
-	curl -fsSL https://deno.land/install.sh | sh \
-		|| exit $?
-	export PATH=$HOME/.deno/bin:$PATH
+	if ! command -v deno > /dev/null; then
+		curl -fsSL https://deno.land/install.sh | sh \
+			|| exit $?
+		export PATH=$HOME/.deno/bin:$PATH
+	fi
 	install_deno_tools
 }
 
