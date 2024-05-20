@@ -67,6 +67,10 @@ if $YES; then
 	ZYPPER_ARGS="$ZYPPER_ARGS -y --force-resolution"
 fi
 
+version_ge() {
+	printf "%s\n%s\n" $1 $2 | sort --check=quiet --version-sort
+}
+
 # Upgrade
 
 upgrade_arch() {
@@ -350,6 +354,8 @@ bootstrap_rust_opensuse() {
 CSPELL_DICTS="rust ru_ru"
 
 install_deno_tools() {
+	deno_version=$(deno --version | head -n 1 | cut -d ' ' -f 2)
+
 	dict_packages=
 	for dict in $CSPELL_DICTS; do
 		dict_packages="$dict_packages npm:@cspell/dict-$dict"
@@ -362,12 +368,17 @@ install_deno_tools() {
 		|| exit $?
 
 	deno install \
+		$(version_ge 1.42 $deno_version && echo --global) \
 		--force --allow-read --allow-sys=cpus --allow-env \
 		--allow-write=$XDG_CONFIG_DIR/configstore \
 		--name=cspell npm:cspell \
 		|| exit $?
 	deno install \
-		--force --allow-read --allow-env --allow-sys=cpus,uid --allow-run \
+		$(version_ge 1.42 $deno_version && echo --global) \
+		--allow-sys=$(echo \
+			cpus uid $(version_ge 1.43 $deno_version && echo homedir) \
+			| sed "s/\s\+/,/g" )\
+		--force --allow-read --allow-env --allow-run \
 		--name=diagnostic-languageserver npm:diagnostic-languageserver \
 		|| exit $?
 
