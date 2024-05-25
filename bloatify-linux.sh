@@ -356,6 +356,24 @@ CSPELL_DICTS="rust ru_ru"
 install_deno_tools() {
 	deno_version=$(deno --version | head -n 1 | cut -d ' ' -f 2)
 
+	deno install \
+		--force \
+		$(version_ge 1.42 $deno_version && echo --global) \
+		--allow-read --allow-sys=cpus --allow-env \
+		--allow-write=$XDG_CONFIG_DIR/configstore \
+		--name=cspell npm:cspell \
+		|| exit $?
+
+	deno install \
+		--force \
+		$(version_ge 1.42 $deno_version && echo --global) \
+		--allow-sys=$(echo \
+			cpus uid $(version_ge 1.43 $deno_version && echo homedir) \
+			| sed "s/\s\+/,/g" )\
+		--allow-read --allow-env --allow-run \
+		--name=diagnostic-languageserver npm:diagnostic-languageserver \
+		|| exit $?
+
 	dict_packages=
 	for dict in $CSPELL_DICTS; do
 		dict_packages="$dict_packages npm:@cspell/dict-$dict"
@@ -366,25 +384,6 @@ install_deno_tools() {
 		npm:diagnostic-languageserver \
 		$dict_packages \
 		|| exit $?
-
-	deno install \
-		$(version_ge 1.42 $deno_version && echo --global) \
-		--force --allow-read --allow-sys=cpus --allow-env \
-		--allow-write=$XDG_CONFIG_DIR/configstore \
-		--name=cspell npm:cspell \
-		|| exit $?
-	deno install \
-		$(version_ge 1.42 $deno_version && echo --global) \
-		--allow-sys=$(echo \
-			cpus uid $(version_ge 1.43 $deno_version && echo homedir) \
-			| sed "s/\s\+/,/g" )\
-		--force --allow-read --allow-env --allow-run \
-		--name=diagnostic-languageserver npm:diagnostic-languageserver \
-		|| exit $?
-
-	# for dict in $BUILTIN_CSPELL_DICTS $CSPELL_DICTS; do
-	# 	~/.deno/bin/cspell link add $(ls $XDG_CACHE_DIR/deno/npm/registry.npmjs.org/@cspell/dict-$dict/*/cspell-ext.json | tail -n 1)
-	# done
 }
 
 upgrade_deno() {
