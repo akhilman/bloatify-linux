@@ -359,7 +359,10 @@ install_deno_tools() {
 	deno install \
 		--force \
 		$(version_ge 1.42 $deno_version && echo --global) \
-		--allow-read --allow-sys=cpus --allow-env \
+		--allow-sys=$(echo \
+			cpus $(version_ge 1.43 $deno_version && echo homedir) \
+			| sed "s/\s\+/,/g" )\
+		--allow-read --allow-env \
 		--allow-write=$XDG_CONFIG_DIR/configstore \
 		--name=cspell npm:cspell \
 		|| exit $?
