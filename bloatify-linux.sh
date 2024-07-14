@@ -440,8 +440,7 @@ setup_dotfiles() {
 			echo Mr confing $f not exists
 			continue
 		fi
-		f_git=$(echo $f | sed -e 's/\.vcsh$/.ssh.vcsh/' -e 's/\.git$/.ssh.git/')
-		[ -e $mr_config_dir/$f ] || [ -e $mr_config_dir/$f_git ] || env -C $mr_config_dir ln -vs ../available.d/$f ./ || exit $?
+		[ -e $mr_config_dir/$f ] || env -C $mr_config_dir ln -vs ../available.d/$f ./ || exit $?
 	done
  	env -C $HOME mr up || exit $?
 
