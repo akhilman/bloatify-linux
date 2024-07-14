@@ -149,6 +149,7 @@ bootstrap_basic_arch() {
 bootstrap_basic_debian() {
 	pkgs=$(echo \
 		which less curl wget gpg fish vim htop unzip \
+		efm-langserver \
 		tmux \
 		ranger highlight \
 		mr vcsh git make \
@@ -191,7 +192,7 @@ bootstrap_basic_opensuse() {
 	pkgs=$(echo \
 		which less curl wget gpg fish htop unzip \
 		vim vim-data \
-		helix{,-runtime,-fish-completion} \
+		helix{,-runtime,-fish-completion} efm-langserver \
 		ripgrep ripgrep-fish-completion \
 		tmux terminfo \
 		ranger highlight{,-fish-completion} \
@@ -367,16 +368,6 @@ install_deno_tools() {
 		--name=cspell npm:cspell \
 		|| exit $?
 
-	deno install \
-		--force \
-		$(version_ge 1.42 $deno_version && echo --global) \
-		--allow-sys=$(echo \
-			cpus uid $(version_ge 1.43 $deno_version && echo homedir) \
-			| sed "s/\s\+/,/g" )\
-		--allow-read --allow-env --allow-run \
-		--name=diagnostic-languageserver npm:diagnostic-languageserver \
-		|| exit $?
-
 	dict_packages=
 	for dict in $CSPELL_DICTS; do
 		dict_packages="$dict_packages npm:@cspell/dict-$dict"
@@ -384,7 +375,6 @@ install_deno_tools() {
 
 	deno cache $1 \
 		npm:cspell \
-		npm:diagnostic-languageserver \
 		$dict_packages \
 		|| exit $?
 }
@@ -434,7 +424,7 @@ setup_dotfiles() {
 	fi
 
 	mr_config_dir=$HOME/.config/mr/config.d
-	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git config-nvim.git config-ranger.git"
+	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git config-nvim.git config-efm-langserver config-ranger.git"
 	for f in $mr_files; do
 		if [ ! -e $mr_config_dir/../available.d/$f ]; then
 			echo Mr confing $f not exists
