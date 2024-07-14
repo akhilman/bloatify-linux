@@ -430,7 +430,7 @@ setup_dotfiles() {
 	if [ -e $HOME/.config/vcsh/repo.d/dotfiles-mr.git ]; then
 		vcsh dotfiles-mr pull || exit $?
 	else
-		vcsh clone https://github.com/akhilman/dotfiles-mr.git || exit $?
+		vcsh clone https://codeberg.org/AkhIL/dotfiles-mr.git || exit $?
 	fi
 
 	mr_config_dir=$HOME/.config/mr/config.d
