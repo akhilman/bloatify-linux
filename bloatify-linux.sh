@@ -74,7 +74,11 @@ version_ge() {
 # Upgrade
 
 upgrade_arch() {
-	$SUDO pacman -Suy $PACMAN_ARGS || exit $?
+	if command -v yay > /dev/null; then
+		yay -Suy $PACMAN_ARGS || exit $? 
+	else
+		$SUDO pacman -Suy $PACMAN_ARGS || exit $?
+	fi
 }
 
 upgrade_debian() {
