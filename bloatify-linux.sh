@@ -361,6 +361,17 @@ CSPELL_DICTS="rust ru_ru"
 install_deno_tools() {
 	deno_version=$(deno --version | head -n 1 | cut -d ' ' -f 2)
 
+	dict_packages=
+	for dict in $CSPELL_DICTS; do
+		dict_packages="$dict_packages npm:@cspell/dict-$dict"
+	done
+
+	# $1 will become `--reload` on update.
+	deno cache $1 \
+		npm:cspell \
+		$dict_packages \
+		|| exit $?
+
 	deno install \
 		--force \
 		$(version_ge 1.42 $deno_version && echo --global) \
@@ -370,16 +381,6 @@ install_deno_tools() {
 		--allow-read --allow-env \
 		--allow-write=$XDG_CONFIG_DIR/configstore \
 		--name=cspell npm:cspell \
-		|| exit $?
-
-	dict_packages=
-	for dict in $CSPELL_DICTS; do
-		dict_packages="$dict_packages npm:@cspell/dict-$dict"
-	done
-
-	deno cache $1 \
-		npm:cspell \
-		$dict_packages \
 		|| exit $?
 }
 
