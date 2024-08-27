@@ -216,7 +216,7 @@ bootstrap_devel_arch() {
 	$SUDO pacman -S $PACMAN_ARGS \
 		lazygit \
 		base-devel valgrind gdb lldb clang{,-tools-extra} \
-		python-{ipdb,numpy,isort,lsp-{server,black}} ipython \
+		python-{ipdb,isort,lsp-server,numpy,ruff} ipython \
 		lua lua-language-server \
 		|| exit $?
 }
@@ -245,7 +245,7 @@ bootstrap_devel_fedora() {
 	$SUDO dnf install $DNF_ARGS \
 		lazygit \
 		valgrind gdb lldb clang{,-tools-extra}  \
-		python3-{ipython,ipdb,numpy,isort,lsp-{server,black}} \
+		python3-{ipdb,ipython,isort,lsp-server,numpy} ruff \
 		lua lua-language-server \
 		|| exit $?
 }
@@ -257,7 +257,7 @@ bootstrap_devel_opensuse() {
 	$SUDO zypper install $ZYPPER_ARGS \
 		lazygit \
 		valgrind gdb lldb clang{,-tools} \
-		python311{,-{devel,python-lsp-{server,black},pylsp-rope,isort,pylint,ipdb,ipython}} \
+		python311{,-{devel,ipdb,ipython,pylsp-rope,python-lsp-server,ruff}} \
 		lua{54,51}{,-{devel,luarocks}} lua-language-server \
 		|| exit $?
 }
