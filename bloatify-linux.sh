@@ -153,7 +153,6 @@ bootstrap_basic_arch() {
 bootstrap_basic_debian() {
 	pkgs=$(echo \
 		which less curl wget gpg fish vim htop unzip \
-		efm-langserver \
 		tmux \
 		ranger highlight \
 		mr vcsh git make \
@@ -196,7 +195,7 @@ bootstrap_basic_opensuse() {
 	pkgs=$(echo \
 		which less curl wget gpg fish htop unzip \
 		vim vim-data \
-		helix{,-runtime,-fish-completion} efm-langserver \
+		helix{,-runtime,-fish-completion} \
 		ripgrep ripgrep-fish-completion \
 		tmux terminfo \
 		ranger highlight{,-fish-completion} \
@@ -223,6 +222,8 @@ bootstrap_devel_arch() {
 
 bootstrap_devel_debian() {
 	echo Unimplemented
+
+	# efm-langserver \
 
 	# if $thirdparty; then
 	# 	curl -L 'https://proget.makedeb.org/debian-feeds/makedeb.pub' | gpg --dearmor | $SUDO tee /usr/share/keyrings/makedeb-archive-keyring.gpg 1> /dev/null || exit $?
@@ -259,6 +260,7 @@ bootstrap_devel_opensuse() {
 		valgrind gdb lldb clang{,-tools} \
 		python311{,-{devel,ipdb,ipython,pylsp-rope,python-lsp-server,ruff}} \
 		lua{54,51}{,-{devel,luarocks}} lua-language-server \
+		efm-langserver \
 		|| exit $?
 }
 
