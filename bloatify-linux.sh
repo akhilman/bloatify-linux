@@ -312,6 +312,20 @@ setup_rustup() {
 	rustup component add rust-analyzer
 }
 
+install_rustup() {
+	if $YES; then
+		installer_args="-y"
+	else
+		installer_args=""
+	fi
+	if ! command -v rustup > /dev/null; then
+		curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
+			| sh -s - $installer_args \
+			|| exit $?
+		. "$HOME/.cargo/env"
+	fi
+}
+
 bootstrap_rust_arch() {
 	$SUDO pacman -S $PACMAN_ARGS \
 		base-devel openssl rustup \
@@ -321,27 +335,15 @@ bootstrap_rust_arch() {
 }
 
 bootstrap_rust_debian() {
-	if $YES; then
-		installer_args="-y"
-	else
-		installer_args=""
-	fi
 	$SUDO apt-get install $APT_ARGS pkg-config libssl-dev
-	if ! command -v rustup > /dev/null; then
-		curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-			| sh -s - $installer_args \
-			|| exit $?
-		. "$HOME/.cargo/env"
-	fi
+	install_rustup
 	setup_rustup
 	setup_cargo
 }
 
 bootstrap_rust_fedora() {
-	$SUDO dnf install $DNF_ARGS \
-		cargo rust-analyzer clippy rustfmt\
-		openssl-devel \
-		|| exit $?
+	$SUDO dnf install $DNF_ARGS rustup || exit $?
+	setup_rustup
 	setup_cargo
 }
 
