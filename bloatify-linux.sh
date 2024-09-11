@@ -87,7 +87,7 @@ upgrade_debian() {
 }
 
 upgrade_fedora() {
-	$SUDO dnf upgrate $DNF_ARGS || exit $?
+	$SUDO dnf upgrade $DNF_ARGS || exit $?
 }
 
 upgrade_opensuse() {
