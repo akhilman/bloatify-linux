@@ -473,21 +473,6 @@ setup_dotfiles() {
 	elif command -v vim > /dev/null; then
 		echo EDITOR=$(command -v vim) | tee $editor_env_file
 	fi
-
-	if [ x$CONTAINER_MANAGER = xtinkerbox ]; then
-		[ -e $HOME/.profile ] || echo \#!/bin/sh > $HOME/.profile
-		if ! grep -q /.config/environment.d/ $HOME/.profile; then
-			cat >> $HOME/.profile <<EOF
-
-for f in \$HOME/.config/environment.d/*.conf; do
-	while read -r line; do
-		echo "\$line" | grep -q '^\w*=' || continue
-		eval export "\$line"
-	done < \$f
-done
-EOF
-		fi
-	fi
 }
 
 upgrade_dotfiles() {
