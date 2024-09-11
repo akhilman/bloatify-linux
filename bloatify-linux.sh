@@ -136,7 +136,7 @@ bootstrap_basic_arch() {
 		&& sudo sed -i 's/^\(NoExtract\s*=\s*usr\/share\/man\/\* usr\/share\/info\/\*\)/#\1/' /etc/pacman.conf
 
 	pkgs=$(echo \
-		python which less curl wget gnupg fish htop unzip \
+		python which less curl wget gnupg fish htop unzip gettext \
 		vim helix ripgrep \
 		tmux \
 		ranger highlight \
@@ -152,7 +152,7 @@ bootstrap_basic_arch() {
 
 bootstrap_basic_debian() {
 	pkgs=$(echo \
-		which less curl wget gpg fish vim htop unzip \
+		which less curl wget gpg fish vim htop unzip gettext \
 		tmux \
 		ranger highlight \
 		mr vcsh git make \
@@ -172,7 +172,7 @@ bootstrap_basic_fedora() {
 		&& sudo sed -i 's/^\(tsflags=nodocs\)/# \1/' /etc/dnf/dnf.conf
 
 	pkgs=$(echo \
-		which less curl wget gpg fish htop unzip \
+		which less curl wget gpg fish htop unzip gettext-envsubst \
 		vim helix ripgrep \
 		mr vcsh git make \
 		tmux \
@@ -193,7 +193,7 @@ bootstrap_basic_opensuse() {
 		&& sudo sed -i 's/^\(rpm.install.excludedocs = yes\)/# \1/' /etc/zypp/zypp.conf
 
 	pkgs=$(echo \
-		which less curl wget gpg fish htop unzip \
+		which less curl wget gpg fish htop unzip envsubst \
 		vim vim-data \
 		helix{,-runtime,-fish-completion} \
 		ripgrep ripgrep-fish-completion \
