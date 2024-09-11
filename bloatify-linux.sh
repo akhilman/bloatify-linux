@@ -136,7 +136,7 @@ bootstrap_basic_arch() {
 		&& sudo sed -i 's/^\(NoExtract\s*=\s*usr\/share\/man\/\* usr\/share\/info\/\*\)/#\1/' /etc/pacman.conf
 
 	pkgs=$(echo \
-		python which less curl wget gnupg fish htop unzip gettext \
+		which less curl wget gnupg fish htop unzip gettext \
 		vim helix ripgrep \
 		tmux \
 		mr vcsh git make \
