@@ -428,7 +428,7 @@ setup_dotfiles() {
 	fi
 
 	mr_config_dir=$HOME/.config/mr/config.d
-	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git config-efm-langserver.git config-ranger.git"
+	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git config-efm-langserver.git"
 	for f in $mr_files; do
 		if [ ! -e $mr_config_dir/../available.d/$f ]; then
 			echo Mr confing $f not exists
