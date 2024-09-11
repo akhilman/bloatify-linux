@@ -139,7 +139,6 @@ bootstrap_basic_arch() {
 		python which less curl wget gnupg fish htop unzip gettext \
 		vim helix ripgrep \
 		tmux \
-		ranger highlight \
 		mr vcsh git make \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
@@ -154,7 +153,6 @@ bootstrap_basic_debian() {
 	pkgs=$(echo \
 		which less curl wget gpg fish vim htop unzip gettext \
 		tmux \
-		ranger highlight \
 		mr vcsh git make \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
@@ -176,7 +174,6 @@ bootstrap_basic_fedora() {
 		vim helix ripgrep \
 		mr vcsh git make \
 		tmux \
-		ranger highlight \
 		dnf-plugins-core \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
@@ -198,7 +195,6 @@ bootstrap_basic_opensuse() {
 		helix{,-runtime,-fish-completion} \
 		ripgrep ripgrep-fish-completion \
 		tmux terminfo \
-		ranger highlight{,-fish-completion} \
 		mr vcsh git make \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
