@@ -154,6 +154,7 @@ bootstrap_basic_debian() {
 		which less curl wget gpg fish htop unzip gettext \
 		tmux \
 		mr vcsh git make \
+		kitty-terminfo \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
 		pkgs=$(echo $pkgs \
@@ -175,6 +176,7 @@ bootstrap_basic_fedora() {
 		mr vcsh git make \
 		tmux \
 		dnf-plugins-core \
+		kitty-terminfo \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
 		pkgs=$(echo $pkgs \
@@ -193,8 +195,9 @@ bootstrap_basic_opensuse() {
 		which less curl wget gpg fish htop unzip envsubst \
 		helix{,-runtime,-fish-completion} \
 		ripgrep ripgrep-fish-completion \
-		tmux terminfo \
+		tmux \
 		mr vcsh git make \
+		terminfo kitty-terminfo \
 		)
 	if [ -n "$WAYLAND_DISPLAY" ]; then
 		pkgs=$(echo $pkgs \
@@ -212,6 +215,7 @@ bootstrap_devel_arch() {
 		base-devel valgrind gdb lldb clang{,-tools-extra} \
 		python-{ipdb,isort,lsp-server,numpy,ruff} ipython \
 		lua lua-language-server \
+		kitty-terminfo \
 		|| exit $?
 }
 
