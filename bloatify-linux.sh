@@ -125,6 +125,8 @@ install_helix() {
   $SUDO cp -r $tmpdir/$dirname $prefix || return $?
 	[ -f /usr/local/bin/helix ] && $SUDO rm /usr/local/bin/helix
   $SUDO ln -s $prefix/hx /usr/local/bin/helix || return $?
+	[ -f /usr/local/bin/hx ] && $SUDO rm /usr/local/bin/hx
+  $SUDO ln -s $prefix/hx /usr/local/bin/hx || return $?
 	rm -r $tmpdir/$dirname $tmpfile || return $?
 }
 
