@@ -469,13 +469,13 @@ setup_dotfiles() {
 
 	editor_env_file=$env_dir/80-editor.conf
 	if command -v helix > /dev/null; then
-		echo EDITOR=$(command -v helix) | tee $editor_env_file
+		echo EDITOR="helix" | tee $editor_env_file
 	elif command -v hx > /dev/null; then
-		echo EDITOR=$(command -v hx) | tee $editor_env_file
+		echo EDITOR="hx" | tee $editor_env_file
 	elif command -v nvim > /dev/null; then
-		echo EDITOR=$(command -v nvim) | tee $editor_env_file
+		echo EDITOR="nvim" | tee $editor_env_file
 	elif command -v vim > /dev/null; then
-		echo EDITOR=$(command -v vim) | tee $editor_env_file
+		echo EDITOR="vim" | tee $editor_env_file
 	fi
 }
 
