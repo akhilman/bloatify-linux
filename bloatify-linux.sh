@@ -217,6 +217,7 @@ bootstrap_devel_arch() {
 		base-devel valgrind gdb lldb clang{,-tools-extra} \
 		python-{ipdb,isort,lsp-server,numpy,ruff} ipython \
 		lua lua-language-server \
+		taplo-cli \
 		kitty-terminfo \
 		|| exit $?
 }
@@ -261,7 +262,7 @@ bootstrap_devel_opensuse() {
 		valgrind gdb lldb clang{,-tools} \
 		python311{,-{devel,ipdb,ipython,pylsp-rope,python-lsp-server,ruff}} \
 		lua{54,51}{,-{devel,luarocks}} lua-language-server \
-		efm-langserver \
+		efm-langserver taplo \
 		|| exit $?
 }
 
