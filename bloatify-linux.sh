@@ -74,8 +74,10 @@ version_ge() {
 # Upgrade
 
 upgrade_arch() {
-	if command -v yay > /dev/null; then
-		yay -Suy $PACMAN_ARGS || exit $? 
+	if command -v paru > /dev/null; then
+		paru -Suy $PACMAN_ARGS || exit $?
+	elif command -v yay > /dev/null; then
+		yay -Suy $PACMAN_ARGS || exit $?
 	else
 		$SUDO pacman -Suy $PACMAN_ARGS || exit $?
 	fi
