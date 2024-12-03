@@ -259,10 +259,11 @@ bootstrap_devel_opensuse() {
 	$SUDO zypper install $ZYPPER_ARGS -t pattern \
 		devel_basis devel_C_C++ devel_python3 \
 		|| exit $?
+	python_version=$(zypper info pattern:devel_python3 | grep -o 'python[0-9]\{2,5\}' | tail -n 1)
 	$SUDO zypper install $ZYPPER_ARGS \
 		lazygit \
 		valgrind gdb lldb clang{,-tools} \
-		python311{,-{devel,ipdb,ipython,pylsp-rope,python-lsp-server,ruff}} \
+		$python_version{,-{devel,ipdb,ipython,pylsp-rope,python-lsp-server,ruff}} \
 		lua{54,51}{,-{devel,luarocks}} lua-language-server \
 		efm-langserver taplo \
 		|| exit $?
