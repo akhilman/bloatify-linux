@@ -85,7 +85,7 @@ upgrade_arch() {
 
 upgrade_debian() {
 	$SUDO apt-get upgrade $APT_ARGS || exit $?
-	install_helix || exit $?
+	# install_helix || exit $?
 }
 
 upgrade_fedora() {
