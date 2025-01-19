@@ -165,7 +165,7 @@ bootstrap_basic_debian() {
 			)
 	fi
 	$SUDO apt-get install $APT_ARGS $pkgs || exit $?
-	install_helix || exit $?
+	# install_helix || exit $?
 }
 
 bootstrap_basic_fedora() {
