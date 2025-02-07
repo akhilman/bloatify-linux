@@ -477,6 +477,8 @@ setup_dotfiles() {
 		echo EDITOR="nvim" | tee $editor_env_file
 	elif command -v vim > /dev/null; then
 		echo EDITOR="vim" | tee $editor_env_file
+	elif command -v nano > /dev/null; then
+		echo EDITOR="nano" | tee $editor_env_file
 	fi
 }
 
