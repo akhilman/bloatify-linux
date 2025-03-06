@@ -2,6 +2,11 @@
 
 # set -x
 
+if [ $(id -u) -eq 0 ]; then
+	echo This script should not be run by root.
+	exit 1
+fi
+
 SUDO=sudo
 
 BASIC=false
