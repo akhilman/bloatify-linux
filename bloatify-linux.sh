@@ -341,7 +341,7 @@ install_deno_tools() {
 
 	# $1 will become `--reload` on update.
 	deno cache $1 \
-		$(version_ge 2.2 $deno_version && echo --node-modules-dir=auto) \
+		$(version_ge 2.2 $deno_version && echo --node-modules-dir=none) \
 		npm:cspell \
 		$dict_packages \
 		|| exit $?
@@ -349,7 +349,7 @@ install_deno_tools() {
 	deno install \
 		--force \
 		$(version_ge 1.42 $deno_version && echo --global) \
-		$(version_ge 2.2 $deno_version && echo --node-modules-dir=auto) \
+		$(version_ge 2.2 $deno_version && echo --node-modules-dir=none) \
 		--allow-sys=$(echo \
 			cpus $(version_ge 1.43 $deno_version && echo homedir) \
 			| sed "s/\s\+/,/g" )\
