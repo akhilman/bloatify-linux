@@ -271,11 +271,11 @@ upgrade_rust() {
 	command -v rustup > /dev/null \
 		&& ( rustup update || exit $? )
 	command -v cargo-install-update > /dev/null \
-		&& ( cargo-install-update install-update --all || exit $? )
+		&& ( cargo-install-update install-update --all --locked || exit $? )
 }
 
 setup_cargo() {
-	cargo install cargo-{cache,criterion,edit,machete,outdated,tree,update} || exit $?
+	cargo install --locked cargo-{cache,criterion,edit,machete,outdated,tree,update} || exit $?
 }
 
 setup_rustup() {
