@@ -109,7 +109,7 @@ bootstrap_basic_arch() {
 
 	pkgs=$(echo \
 		which less curl wget gnupg fish htop unzip gettext \
-		helix ripgrep \
+		helix ripgrep codebook-lsp \
 		tmux \
 		mr vcsh git make \
 		)
@@ -229,7 +229,7 @@ bootstrap_devel_opensuse() {
 		valgrind gdb lldb clang{,-tools} \
 		$python_version{,-{devel,ipdb,ipython,pylsp-rope,python-lsp-server,ruff}} \
 		lua{54,51}{,-{devel,luarocks}} lua-language-server \
-		efm-langserver taplo \
+		taplo \
 		|| exit $?
 }
 
@@ -329,42 +329,11 @@ bootstrap_rust_opensuse() {
 
 # Deno
 
-CSPELL_DICTS="rust ru_ru"
-
-install_deno_tools() {
-	deno_version=$(deno --version | head -n 1 | cut -d ' ' -f 2)
-
-	dict_packages=
-	for dict in $CSPELL_DICTS; do
-		dict_packages="$dict_packages npm:@cspell/dict-$dict"
-	done
-
-	# $1 will become `--reload` on update.
-	deno cache $1 \
-		$(version_ge 2.2 $deno_version && echo --node-modules-dir=none) \
-		npm:cspell \
-		$dict_packages \
-		|| exit $?
-
-	deno install \
-		--force \
-		$(version_ge 1.42 $deno_version && echo --global) \
-		$(version_ge 2.2 $deno_version && echo --node-modules-dir=none) \
-		--allow-sys=$(echo \
-			cpus $(version_ge 1.43 $deno_version && echo homedir) \
-			| sed "s/\s\+/,/g" )\
-		--allow-read --allow-env \
-		--allow-write=$XDG_CONFIG_DIR/configstore \
-		--name=cspell npm:cspell \
-		|| exit $?
-}
-
 upgrade_deno() {
 	deno_bin=$(command -v deno) || return
 	if [ -w $deno_bin ]; then
 		$deno_bin upgrade || exit $?;
 	fi
-	install_deno_tools --reload || exit $?
 }
 
 bootstrap_deno_arch() {
