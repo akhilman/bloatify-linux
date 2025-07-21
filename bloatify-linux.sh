@@ -264,7 +264,7 @@ upgrade_flatpak() {
 
 bootstrap_python_arch() {
 	$SUDO pacman -S $PACMAN_ARGS \
-		python-{ipdb,lsp-server,ruff} ipython uv \
+		ipython ruff uv \
 		|| exit $?
 } 
 
