@@ -184,7 +184,6 @@ bootstrap_devel_arch() {
 	$SUDO pacman -S $PACMAN_ARGS \
 		lazygit \
 		base-devel valgrind gdb lldb clang{,-tools-extra} \
-		python-{ipdb,isort,lsp-server,numpy,ruff} ipython \
 		taplo-cli \
 		|| exit $?
 }
