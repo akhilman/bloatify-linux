@@ -37,14 +37,8 @@ while [ $# -gt 0 ]; do
 		-n|--deno) # install Deno tools
 			DENO=true;;
 		-p|--python) # Install Python tools
-			DOTFILES=true
-			BASIC=true
-			DEVEL=true
 			PYTHON=true;;
 		-r|--rust) # install Rust tools
-			DOTFILES=true
-			BASIC=true
-			DEVEL=true
 			RUST=true;;
 		-t|--dotfiles) # install dotfiles
 			DOTFILES=true;;
