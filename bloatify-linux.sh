@@ -15,6 +15,7 @@ DESKTOP=false
 DEVEL=false
 DOTFILES=false
 FLATPAK=false
+PYTHON=false
 RUST=false
 UPGRADE=false
 YES=false
@@ -32,11 +33,18 @@ while [ $# -gt 0 ]; do
 		-d|--devel) # install development tools (basic, devel, deno, dotfiles)
 			DOTFILES=true
 			BASIC=true
-			DENO=true
 			DEVEL=true;;
-		-n|--deno) # install Deno and tools running with Deno
+		-n|--deno) # install Deno tools
 			DENO=true;;
-		-r|--rust) # install Rust
+		-p|--python) # Install Python tools
+			DOTFILES=true
+			BASIC=true
+			DEVEL=true
+			PYTHON=true;;
+		-r|--rust) # install Rust tools
+			DOTFILES=true
+			BASIC=true
+			DEVEL=true
 			RUST=true;;
 		-t|--dotfiles) # install dotfiles
 			DOTFILES=true;;
@@ -183,7 +191,6 @@ bootstrap_devel_arch() {
 		lazygit \
 		base-devel valgrind gdb lldb clang{,-tools-extra} \
 		python-{ipdb,isort,lsp-server,numpy,ruff} ipython \
-		lua lua-language-server \
 		taplo-cli \
 		|| exit $?
 }
@@ -209,26 +216,20 @@ bootstrap_devel_debian() {
 }
 
 bootstrap_devel_fedora() {
-	$SUDO dnf copr enable $DNF_ARGS yorickpeterse/lua-language-server || exit $?
 	$SUDO dnf copr enable $DNF_ARGS atim/lazygit || exit $?
 	$SUDO dnf install $DNF_ARGS \
 		lazygit \
 		valgrind gdb lldb clang{,-tools-extra}  \
-		python3-{ipdb,ipython,isort,lsp-server,numpy} ruff \
-		lua lua-language-server \
 		|| exit $?
 }
 
 bootstrap_devel_opensuse() {
 	$SUDO zypper install $ZYPPER_ARGS -t pattern \
-		devel_basis devel_C_C++ devel_python3 \
+		devel_basis devel_C_C++ \
 		|| exit $?
-	python_version=$(zypper info pattern:devel_python3 | grep -o 'python[0-9]\{2,5\}' | tail -n 1)
 	$SUDO zypper install $ZYPPER_ARGS \
 		lazygit \
 		valgrind gdb lldb clang{,-tools} \
-		$python_version{,-{devel,ipdb,ipython,pylsp-rope,python-lsp-server,ruff}} \
-		lua{54,51}{,-{devel,luarocks}} lua-language-server \
 		taplo \
 		|| exit $?
 }
@@ -241,7 +242,7 @@ if $YES; then
 fi
 
 setup_flatpak() {
-	echo Flatpak support not yet done
+	echo Flatpak support to be done
 }
 
 bootstrap_flatpak_arch() {
@@ -261,13 +262,54 @@ bootstrap_flatpak_opensuse() {
 }
 
 upgrade_flatpak() {
+	echo Upgrading flatpaks...
 	command -v flatpak > /dev/null || return
 	flatpak update $FLATPAK_ARGS
+}
+
+# Python
+
+bootstrap_python_arch() {
+	$SUDO pacman -S $PACMAN_ARGS \
+		python-{ipdb,lsp-server,ruff} ipython uv \
+		|| exit $?
+} 
+
+bootstrap_python_debian() {
+	echo Unimplemented
+} 
+
+bootstrap_python_fedora() {
+	$SUDO dnf install $DNF_ARGS \
+		python3-{ipdb,ipython,isort,lsp-server,numpy} ruff uv \
+		|| exit $?
+} 
+
+bootstrap_python_opensuse() {
+	$SUDO zypper install $ZYPPER_ARGS -t pattern \
+		devel_python3 \
+		|| exit $?
+	python_version=$(zypper info pattern:devel_python3 | grep -o 'python[0-9]\{2,5\}' | tail -n 1)
+	$SUDO zypper install $ZYPPER_ARGS \
+		$python_version{,-{devel,ipdb,ipython,pylsp-rope,python-lsp-server,ruff,uv}} \
+		|| exit $?
+	
+} 
+
+upgrade_python() {
+	echo Upgrading python tools...
+	if command -v uv > /dev/null; then
+		if test -w $(command -v uv); then
+			uv self update || exit $?
+		fi
+		uv tool upgrade --all || exit $?
+	fi
 }
 
 # Rust
 
 upgrade_rust() {
+	echo Upgrading rust tools...
 	command -v rustup > /dev/null \
 		&& ( rustup update || exit $? )
 	command -v cargo-install-update > /dev/null \
@@ -330,6 +372,7 @@ bootstrap_rust_opensuse() {
 # Deno
 
 upgrade_deno() {
+	echo Upgrading deno tools...
 	deno_bin=$(command -v deno) || return
 	if [ -w $deno_bin ]; then
 		$deno_bin upgrade || exit $?;
@@ -421,6 +464,7 @@ setup_dotfiles() {
 }
 
 upgrade_dotfiles() {
+	echo Updating dotfiles...
 	command -v mr > /dev/null && [ -f $HOME/.mrconfig ] \
 		&& env -C $HOME mr up || exit $?
 	command -v fish > /dev/null && [ -f $HOME/.config/fish/Makefile ] \
@@ -442,8 +486,6 @@ setup_shared() {
 }
 
 echo -n "Package manager: "
-# if command -v apk; then
-# 	DISTRO=alpine
 if command -v apt-get; then
 	DISTRO=debian
 elif command -v dnf; then
@@ -461,6 +503,7 @@ if $UPGRADE; then
 	echo Upgrading
 	upgrade_$DISTRO
 	upgrade_flatpak
+	upgrade_python
 	upgrade_rust
 	upgrade_deno
 	upgrade_dotfiles
@@ -484,6 +527,11 @@ fi
 if $DEVEL; then
 	echo Setting up development tools
 	bootstrap_devel_$DISTRO
+fi
+
+if $PYTHON; then
+	echo Setting up python development tools
+	bootstrap_python_$DISTRO
 fi
 
 if $RUST; then
