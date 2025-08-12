@@ -341,8 +341,7 @@ bootstrap_rust_arch() {
 }
 
 bootstrap_rust_debian() {
-	$SUDO apt-get install $APT_ARGS pkg-config libssl-dev
-	install_rustup
+	$SUDO apt-get install $APT_ARGS pkg-config libssl-dev rustup
 	setup_rustup
 	setup_cargo
 }
