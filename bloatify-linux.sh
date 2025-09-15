@@ -284,7 +284,7 @@ bootstrap_python_opensuse() {
 		|| exit $?
 	python_version=$(zypper info pattern:devel_python3 | grep -o 'python[0-9]\{2,5\}' | tail -n 1)
 	$SUDO zypper install $ZYPPER_ARGS \
-		$python_version{,-{devel,ipdb,ipython,pylsp-rope,python-lsp-server,ruff,uv}} \
+		$python_version{,-{devel,ipython,pylsp-rope,python-lsp-server,ruff,uv}} \
 		|| exit $?
 	
 } 
