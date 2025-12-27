@@ -91,6 +91,7 @@ upgrade_arch() {
 }
 
 upgrade_debian() {
+	$SUDO apt-get update || exit $?
 	$SUDO apt-get upgrade $APT_ARGS || exit $?
 }
 
