@@ -128,6 +128,7 @@ bootstrap_basic_arch() {
 bootstrap_basic_debian() {
 	pkgs=$(echo \
 		which less curl wget gpg fish htop unzip gettext \
+		hx ripgrep codebook-lsp \
 		tmux \
 		mr vcsh git make \
 		)
@@ -446,8 +447,8 @@ setup_dotfiles() {
 	editor_env_file=$env_dir/80-editor.conf
 	if command -v helix > /dev/null; then
 		echo EDITOR="helix" | tee $editor_env_file
-	# elif command -v hx > /dev/null; then
-	# 	echo EDITOR="hx" | tee $editor_env_file
+	elif command -v hx > /dev/null; then
+		echo EDITOR="hx" | tee $editor_env_file
 	elif command -v nvim > /dev/null; then
 		echo EDITOR="nvim" | tee $editor_env_file
 	elif command -v vim > /dev/null; then
