@@ -147,6 +147,7 @@ bootstrap_basic_debian() {
 			kitty-terminfo \
 			)
 	fi
+	APT_ARGS="$APT_ARGS -o APT::Install-Suggests=0 -o APT::Install-Recommends=0"
 	$SUDO apt-get install $APT_ARGS $pkgs || exit $?
 }
 
