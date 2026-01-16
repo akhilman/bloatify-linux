@@ -122,6 +122,11 @@ bootstrap_basic_arch() {
 			wl-clipboard \
 			)
 	fi
+	if [ "$TERM" = xterm-kitty ]; then
+		pkgs=$(echo $pkgs \
+			kitty-terminfo \
+			)
+	fi
 	$SUDO pacman -S $PACMAN_ARGS $pkgs || exit $?
 }
 
@@ -135,6 +140,11 @@ bootstrap_basic_debian() {
 	if [ -n "$WAYLAND_DISPLAY" ]; then
 		pkgs=$(echo $pkgs \
 			wl-clipboard \
+			)
+	fi
+	if [ "$TERM" = xterm-kitty ]; then
+		pkgs=$(echo $pkgs \
+			kitty-terminfo \
 			)
 	fi
 	$SUDO apt-get install $APT_ARGS $pkgs || exit $?
@@ -157,6 +167,11 @@ bootstrap_basic_fedora() {
 			wl-clipboard \
 			)
 	fi
+	if [ "$TERM" = xterm-kitty ]; then
+		pkgs=$(echo $pkgs \
+			kitty-terminfo \
+			)
+	fi
 	$SUDO dnf install $DNF_ARGS $pkgs || exit $?
 }
 
@@ -176,6 +191,11 @@ bootstrap_basic_opensuse() {
 	if [ -n "$WAYLAND_DISPLAY" ]; then
 		pkgs=$(echo $pkgs \
 			wl-clipboard{,-fish-completion} \
+			)
+	fi
+	if [ "$TERM" = xterm-kitty ]; then
+		pkgs=$(echo $pkgs \
+			kitty-terminfo \
 			)
 	fi
 	$SUDO zypper install $ZYPPER_ARGS $pkgs || exit $?
