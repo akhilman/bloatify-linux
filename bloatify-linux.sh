@@ -133,7 +133,7 @@ bootstrap_basic_arch() {
 bootstrap_basic_debian() {
 	pkgs=$(echo \
 		which less curl wget gpg fish htop unzip gettext \
-		hx ripgrep codebook-lsp \
+		hx ripgrep \
 		tmux \
 		mr vcsh git make \
 		)
