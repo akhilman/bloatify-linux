@@ -476,19 +476,6 @@ setup_dotfiles() {
 		echo EDITOR="vim" | tee $editor_env_file
 	elif command -v nano > /dev/null; then
 		echo EDITOR="nano" | tee $editor_env_file
-	else test -e $editor_env_file
-		rm -v $editor_env_file
-	fi
-
-	pager_env_file=$env_dir/80-pager.conf
-	if command -v bat > /dev/null; then
-		echo PAGER="bat" | tee $pager_env_file
-	elif command -v batcat > /dev/null; then
-		echo PAGER="batcat" | tee $pager_env_file
-	elif command -v most > /dev/null; then
-		echo PAGER="most" | tee $pager_env_file
-	else test -e $pager_env_file
-		rm -v $pager_env_file
 	fi
 }
 
