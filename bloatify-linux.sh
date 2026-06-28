@@ -132,7 +132,7 @@ bootstrap_basic_arch() {
 
 bootstrap_basic_debian() {
 	pkgs=$(echo \
-		which less curl wget gpg fish htop unzip gettext \
+		which less curl wget gpg fish htop unzip gettext ca-certificates \
 		hx ripgrep \
 		tmux \
 		mr vcsh git make \
@@ -213,23 +213,11 @@ bootstrap_devel_arch() {
 }
 
 bootstrap_devel_debian() {
-	echo Unimplemented
-
-	# efm-langserver \
-
-	# if $thirdparty; then
-	# 	curl -L 'https://proget.makedeb.org/debian-feeds/makedeb.pub' | gpg --dearmor | $SUDO tee /usr/share/keyrings/makedeb-archive-keyring.gpg 1> /dev/null || exit $?
-	# 	echo 'deb [signed-by=/usr/share/keyrings/makedeb-archive-keyring.gpg arch=all] https://proget.makedeb.org/ makedeb main' | $SUDO tee /etc/apt/sources.list.d/makedeb.list || exit $?
-	#
-	# 	$SUDO apt-get update || exit $?
-	# 	$SUDO apt-get install $APT_ARGS makedeb || exit $?
-	#
-	# 	tmpdir=/tmp/makedeb
-	# 	[ -d $tmpdir/mist ] || git clone 'https://mpr.makedeb.org/mist' $tmpdir/mist
-	# 	( cd $tmpdir/mist && makedeb -si -H 'MPR-Mackage: yes' )
-	#
-	# 	mist update
-	# fi
+  $SUDO apt-get install $APT_ARGS \
+    build-essential \
+    lazygit \
+    valgrind gdb lldb clang clang-tools \
+    || exit $?}
 }
 
 bootstrap_devel_fedora() {
@@ -293,8 +281,17 @@ bootstrap_python_arch() {
 } 
 
 bootstrap_python_debian() {
-	echo Unimplemented
-} 
+	$SUDO apt-get install $APT_ARGS \
+		ipython3 python3-{ipdb,isort,pylsp,numpy} \
+		|| exit $?
+
+	# Install uv standalone if not present
+	if ! command -v uv &> /dev/null; then
+		curl -LsSf https://astral.sh/uv/install.sh | sh || exit $?
+		. $HOME/.local/bin/env
+	fi
+	uv tool install ruff@latest ty@latset
+}
 
 bootstrap_python_fedora() {
 	$SUDO dnf install $DNF_ARGS \
@@ -402,9 +399,14 @@ bootstrap_deno_arch() {
 }
 
 bootstrap_deno_debian() {
+	if $YES; then
+		installer_args="-y"
+	else
+		installer_args=""
+	fi
 	echo Installing Deno
 	if ! command -v deno > /dev/null; then
-		curl -fsSL https://deno.land/install.sh | sh \
+		curl -fsSL https://deno.land/install.sh | sh -s - $installer_args \
 			|| exit $?
 		export PATH=$HOME/.deno/bin:$PATH
 	fi
