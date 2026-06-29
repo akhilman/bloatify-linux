@@ -62,19 +62,19 @@ if $DOTFILES || $DEVEL || $DENO || $PYTHON || $RUST; then
 	BASIC=true
 fi
 
-echo -n "Package manager: "
-if command -v apt-get; then
+if command -v apt-get > /dev/null; then
 	DISTRO=debian
-elif command -v dnf; then
+elif command -v dnf > /dev/null; then
 	DISTRO=fedora
-elif command -v pacman; then
+elif command -v pacman > /dev/null; then
 	DISTRO=arch
-elif command -v zypper; then
+elif command -v zypper > /dev/null; then
 	DISTRO=opensuse
 else
 	echo ERROR: Unsupported distro!
 	exit 1
 fi
+echo Distro: $DISTRO
 
 [ -f $HOME/.cargo/env ] && . $HOME/.cargo/env
 [ -f $HOME/.deno/env ] && . $HOME/.deno/env
@@ -401,7 +401,7 @@ upgrade_dotfiles() {
 
 setup_shared() {
 	if [ -n "$container" -a -d /mnt/shared ]; then
-		echo Setting up shared volume
+		echo Setting up shared volume...
 		$SUDO chmod a+rwX /mnt/shared
 		for dir in $HOME/{.cargo,.rustup,.cache/{pip,deno}}; do
 			if [ ! -e $dir ]; then
@@ -490,7 +490,7 @@ fi
 # Upgrade
 
 if $UPGRADE; then
-	echo Upgrading distro
+	echo Upgrading distro...
 	case $DISTRO in
 		arch)
 			$SUDO pacman -Suy $PACMAN_ARGS || exit $?
@@ -506,33 +506,34 @@ if $UPGRADE; then
 	esac
 
 	if command -v flatpak > /dev/null; then
-		echo Upgrading flatpaks
+		echo Upgrading flatpaks...
 		flatpak update $FLATPAK_ARGS || exit $?
 	fi
 
 	if command -v deno > /dev/null; then
 		if test -w $(command -v deno); then
-			echo Upgrading deno
+			echo Upgrading Deno...
 			deno upgrade || exit $?;
 		fi
-		echo Upgrading deno tools
+		echo Upgrading Deno tools...
 		# TODO
 	fi
 
 	if command -v uv > /dev/null; then
-		echo Upgrading python tools
 		if test -w $(command -v uv); then
+			echo Upgrading UV...
 			uv self update || exit $?
 		fi
+		echo Upgrading Python tools...
 		uv tool upgrade --all || exit $?
 	fi
 
 	if command -v rustup > /dev/null; then
-		echo Upgrading rustup
+		echo Upgrading Rustup...
 		rustup update || exit $?
 	fi
 	if command -v cargo-install-update > /dev/null; then
-		echo Upgrading rust tools
+		echo Upgrading Rust tools...
 		cargo-install-update install-update --all --locked || exit $?
 	fi
 
@@ -576,7 +577,7 @@ esac
 # Flatpak
 
 if $FLATPAK; then
-	echo Setting up flatpak repos
+	echo Setting up flatpak repos...
 	flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || exit $?
 	flatpak remote-add --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo || exit $?
 fi
@@ -592,7 +593,7 @@ if $RUST; then
 
 	if $SIDEINSTALL_RUSTUP; then
 		if ! command -v rustup > /dev/null; then
-			echo Installing Rustup
+			echo Installing Rustup...
 			curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
 				| sh -s - $installer_args \
 				|| exit $?
@@ -627,7 +628,7 @@ if $DENO; then
 	fi
 	if $SIDEINSTALL_DENO; then
 		if ! command -v deno > /dev/null; then
-			echo Installing Deno
+			echo Installing Deno...
 			curl -fsSL https://deno.land/install.sh \
 				| sh -s - $installer_args \
 				|| exit $?
@@ -636,7 +637,7 @@ if $DENO; then
 	fi
 
 	if [ -n "$NPM_PKGS" ]; then
-		echo Installing Deno tools
+		echo Installing Deno tools...
 		echo Unimplemented. Line $LINENO
 		exit 1
 	fi
@@ -647,14 +648,14 @@ fi
 if $PYTHON; then
 	if $SIDEINSTAL_UV; then
 		if ! command -v uv &> /dev/null; then
-			echo Installing UV
+			echo Installing UV...
 			curl -LsSf https://astral.sh/uv/install.sh | sh || exit $?
 			. $HOME/.local/bin/env
 		fi
 	fi
 
 	if [ -n "$PIP_PKGS" ]; then
-		echo Installing Python tools
+		echo Installing Python tools...
 		for pkg in $PIP_PKGS; do
 			uv tool install $pkg || exit $?
 		done
