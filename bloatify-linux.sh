@@ -493,7 +493,10 @@ if $UPGRADE; then
 	echo Upgrading distro
 	case $DISTRO in
 		arch)
-			$SUDO pacman -Suy $PACMAN_ARGS || exit $? ;;
+			$SUDO pacman -Suy $PACMAN_ARGS || exit $?
+			if command -v paru > /dev/null; then
+				paru --mode=aur -Suy $PACMAN_ARGS || exit $?
+			fi ;;
 		debian)
 			$SUDO apt-get update && $SUDO apt-get upgrade $APT_ARGS || exit $? ;;
 		fedora)
