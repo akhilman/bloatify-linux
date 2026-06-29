@@ -541,7 +541,7 @@ fi
 case $DISTRO in
 	arch)
 		if [ -n "$DISTRO_PATTERNS" ] || [ -n "$DISTRO_PKGS" ]; then
-			$SUDO pacman -Suy $PACMAN_ARGS $DISTRO_PATTERNS $DISTRO_PKGS || exit $?
+			$SUDO pacman -S $PACMAN_ARGS $DISTRO_PATTERNS $DISTRO_PKGS || exit $?
 		fi
 		;;
 	debian)
