@@ -101,7 +101,7 @@ version_ge() {
 }
 
 deduplicate() {
-	echo $(echo $@| tr '\n' ' ' | sort | uniq)
+	echo $(echo $@| tr '\n' ' ' | sort -u )
 }
 
 BASIC_CARGO_PKGS=""
