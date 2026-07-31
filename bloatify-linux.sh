@@ -166,7 +166,7 @@ case $DISTRO in
     )
 
     PYTHON_DISTRO_PKGS=$(echo \
-      ipython ruff uv \
+      ipython ruff uv ty \
     )
 
     RUST_DISTRO_PKGS=$(echo \
@@ -258,6 +258,9 @@ case $DISTRO in
 
     PYTHON_DISTRO_PKGS=$(echo \
       python3-{ipython,isort,lsp-server,numpy} ruff uv \
+    )
+    PYTHON_PIP_PKGS=$(echo \
+      ty \
     )
 
     RUST_DISTRO_PKGS=$(echo \
