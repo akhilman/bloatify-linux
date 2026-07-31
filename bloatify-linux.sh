@@ -206,7 +206,7 @@ case $DISTRO in
 	    valgrind gdb lldb clang clang-tools \
 		)
 		DEVEL_CARGO_PKGS=$(echo \
-			taplo \
+			taplo-cli \
 		)
 
 		SIDEINSTALL_UV=true
