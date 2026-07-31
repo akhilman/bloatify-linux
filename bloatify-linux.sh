@@ -252,6 +252,9 @@ case $DISTRO in
 			lazygit \
 			valgrind gdb lldb clang{,-tools-extra}  \
 		)
+		DEVEL_CARGO_PKGS=$(echo \
+			taplo-cli \
+		)
 
 		PYTHON_DISTRO_PKGS=$(echo \
 			python3-{ipython,isort,lsp-server,numpy} ruff uv \
