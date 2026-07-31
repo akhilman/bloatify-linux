@@ -216,7 +216,7 @@ case $DISTRO in
 
 		SIDEINSTALL_RUSTUP=true
 		RUST_DISTRO_PKGS=$(echo \
-			pkg-config libssl-dev rustup \
+			build-essential pkg-config libssl-dev rustup \
 		)
 
 		SIDEINSTALL_DENO=true
@@ -342,7 +342,7 @@ setup_dotfiles() {
 	fi
 
 	mr_config_dir=$HOME/.config/mr/config.d
-	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git config-efm-langserver.git"
+	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git"
 	if $DESKTOP; then
 		mr_files="$mr_files dotfiles-desktop.vcsh"
 	fi
@@ -370,7 +370,7 @@ setup_dotfiles() {
 	[ -d $HOME/.deno/bin ] \
 		&& command -v deno > /dev/null \
 		&& env_files="$env_files 70-path-deno.conf"
-	$DESKTOP && env_files="$env_files 50-pass.conf 50-gopass.conf 50-qt5-style-gnome.conf 80-ssh-askpass.conf"
+	$DESKTOP && env_files="$env_files 50-pass.conf 50-gopass.conf 50-desktop-theme.conf 80-ssh-askpass.conf"
 	for f in $env_files; do
 		[ -e $env_dir/$f ] || env -C $env_dir ln -vs available/$f $f
 	done
