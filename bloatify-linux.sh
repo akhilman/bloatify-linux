@@ -205,6 +205,9 @@ case $DISTRO in
 	    lazygit \
 	    valgrind gdb lldb clang clang-tools \
 		)
+		DEVEL_CARGO_PKGS=$(echo \
+			taplo \
+		)
 
 		SIDEINSTALL_UV=true
 		PYTHON_DISTRO_PKGS=$(echo \
