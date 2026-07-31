@@ -119,7 +119,7 @@ DESKTOP_DISTRO_PKGS=""
 DESKTOP_DISTRO_PATTERNS=""
 DESKTOP_NPM_PKGS=""
 DESKTOP_PIP_PKGS=""
-DEVEL_CARGO_PKGS=""
+DEVEL_CARGO_PKGS="$(echo cargo-{criterion,edit,machete,outdated,tree,expand})"
 DEVEL_DISTRO_PKGS=""
 DEVEL_DISTRO_PATTERNS=""
 DEVEL_NPM_PKGS=""
@@ -130,7 +130,7 @@ PYTHON_DISTRO_PKGS=""
 PYTHON_DISTRO_PATTERNS=""
 PYTHON_NPM_PKGS=""
 PYTHON_PIP_PKGS=""
-RUST_CARGO_PKGS=$(echo cargo-{cache,criterion,edit,machete,outdated,tree,update})
+RUST_CARGO_PKGS=$(echo cargo-{cache,update})
 RUST_DISTRO_PKGS=""
 RUST_DISTRO_PATTERNS=""
 RUST_NPM_PKGS=""
@@ -205,7 +205,7 @@ case $DISTRO in
 	    lazygit \
 	    valgrind gdb lldb clang clang-tools \
 		)
-		DEVEL_CARGO_PKGS=$(echo \
+		DEVEL_CARGO_PKGS=$(echo $DEVEL_CARGO_PKGS \
 			taplo-cli \
 		)
 
@@ -252,7 +252,7 @@ case $DISTRO in
 			lazygit \
 			valgrind gdb lldb clang{,-tools-extra}  \
 		)
-		DEVEL_CARGO_PKGS=$(echo \
+		DEVEL_CARGO_PKGS=$(echo $DEVEL_CARGO_PKGS \
 			taplo-cli \
 		)
 
