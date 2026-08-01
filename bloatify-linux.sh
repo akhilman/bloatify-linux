@@ -10,6 +10,7 @@ fi
 SUDO=sudo
 
 BASIC=false
+CLANG=false
 DENO=false
 DESKTOP=false
 DEVEL=false
@@ -22,12 +23,14 @@ YES=false
 
 while [ $# -gt 0 ]; do
   case $1 in
-    -b|--basic) # install basic tools (basic, dotfiles)
+    -b|--basic) # install basic tools
       BASIC=true;;
     -D|--desktop) # install desktop relaited stuff (basic, desktop, dotfiles, flatpack)
       DESKTOP=true;;
-    -d|--devel) # install development tools (basic, devel, deno, dotfiles)
+    -d|--devel) # install development tools (basic, devel, dotfiles)
       DEVEL=true;;
+    -c|--clang) # install clang C/C++ tools
+      CLANG=true;;
     -n|--deno) # install Deno tools
       DENO=true;;
     -p|--python) # Install Python tools
@@ -58,7 +61,7 @@ if $DESKTOP; then
   DOTFILES=true
 fi
 
-if $DOTFILES || $DEVEL || $DENO || $PYTHON || $RUST; then
+if $CLANG || $DOTFILES || $DEVEL || $DENO || $PYTHON || $RUST; then
   BASIC=true
 fi
 
@@ -125,6 +128,7 @@ DEVEL_DISTRO_PATTERNS=""
 DEVEL_NPM_PKGS=""
 DEVEL_PIP_PKGS=""
 FLATPAK_DISTRO_PKGS="flatpak"
+CLANG_DISTRO_PKGS=""
 PYTHON_CARGO_PKGS=""
 PYTHON_DISTRO_PKGS=""
 PYTHON_DISTRO_PATTERNS=""
@@ -161,8 +165,12 @@ case $DISTRO in
 
     DEVEL_DISTRO_PKGS=$(echo \
       lazygit \
-      base-devel valgrind gdb lldb clang{,-tools-extra} \
+      base-devel valgrind gdb \
       taplo-cli \
+    )
+
+    CLANG_DISTRO_PKGS=$(echo \
+       clang{,-tools-extra} lldb \
     )
 
     PYTHON_DISTRO_PKGS=$(echo \
@@ -203,10 +211,14 @@ case $DISTRO in
     DEVEL_DISTRO_PKGS=$(echo \
       build-essential \
       lazygit \
-      valgrind gdb lldb clang clang-tools \
+      valgrind gdb \
     )
     DEVEL_CARGO_PKGS=$(echo $DEVEL_CARGO_PKGS \
       taplo-cli \
+    )
+
+    CLANG_DISTRO_PKGS=$(echo \
+      clang{,-tools} lldb \
     )
 
     SIDEINSTALL_UV=true
@@ -223,7 +235,7 @@ case $DISTRO in
     )
 
     SIDEINSTALL_DENO=true
-  
+
   ;;
 
   fedora)
@@ -250,10 +262,14 @@ case $DISTRO in
 
     DEVEL_DISTRO_PKGS=$(echo \
       lazygit \
-      valgrind gdb lldb clang{,-tools-extra}  \
+      valgrind gdb \
     )
     DEVEL_CARGO_PKGS=$(echo $DEVEL_CARGO_PKGS \
       taplo-cli \
+    )
+
+    CLANG_DISTRO_PKGS=$(echo \
+      clang{,-tools-extra} lldb \
     )
 
     PYTHON_DISTRO_PKGS=$(echo \
@@ -296,8 +312,12 @@ case $DISTRO in
     DEVEL_DISTRO_PATTERNS="devel_basis devel_C_C++"
     DEVEL_DISTRO_PKGS=$(echo \
       lazygit \
-      valgrind gdb lldb clang{,-tools} \
+      valgrind gdb \
       taplo \
+    )
+
+    CLANG_DISTRO_PKGS=$(echo \
+      clang{,-tools} lldb \
     )
 
     PYTHON_DISTRO_PATTERNS="devel_python3"
@@ -455,6 +475,10 @@ if $DEVEL; then
   CARGO_PKGS=$(echo $CARGO_PKGS $DEVEL_CARGO_PKGS)
   NPM_PKGS=$(echo $NPM_PKGS $DEVEL_NPM_PKGS)
   PIP_PKGS=$(echo $PIP_PKGS $DEVEL_PIP_PKGS)
+fi
+
+if $CLANG; then
+  DISTRO_PKGS=$(echo $DISTRO_PKGS $CLANG_DISTRO_PKGS)
 fi
 
 if $PYTHON; then
