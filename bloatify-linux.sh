@@ -208,10 +208,12 @@ case $DISTRO in
       codebook-lsp \
     )
 
+    # libtree-sitter is required to bulid helix's parsers
     DEVEL_DISTRO_PKGS=$(echo \
       build-essential \
       lazygit \
       valgrind gdb \
+      libtree-sitter-dev \
     )
     DEVEL_CARGO_PKGS=$(echo $DEVEL_CARGO_PKGS \
       taplo-cli \
@@ -703,5 +705,14 @@ fi
 if $DOTFILES; then
   echo Setting up dotfiles
   setup_dotfiles
+fi
+
+# Biuld helix stree-sitter parers
+
+if [ "$DISTRO" = debian ] && $BASIC && $DEVEL && command -v hx > /dev/null; then
+  echo "Run following commands to install helix grammar parsers:"
+  echo "hx --grammar fetch && hx --grammar build"
+  # fetch asks github passowrd
+  # It is ok to fail to build some parsers
 fi
 
