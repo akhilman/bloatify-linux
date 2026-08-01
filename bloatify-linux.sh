@@ -619,6 +619,9 @@ if $RUST; then
 
   if command -v rustup > /dev/null && command -v cargo > /dev/null; then
     rustup default stable || exit $?
+    if $DEVEL; then
+      rustup component add rust-analyzer || exit $?
+    fi
   fi
 
   if [ -n "$CARGO_PKGS" ]; then
