@@ -617,14 +617,14 @@ if $RUST; then
     . $HOME/.cargo/env
   fi
 
-  if command -v rustup > /dev/null && command -v cargo > /dev/null; then
+  if command -v rustup > /dev/null; then
     rustup default stable || exit $?
     if $DEVEL; then
       rustup component add rust-analyzer || exit $?
     fi
   fi
 
-  if [ -n "$CARGO_PKGS" ]; then
+  if [ -n "$CARGO_PKGS" ] && command -v cargo > /dev/null; then
     # Installing Rust tools
     cargo install --locked $CARGO_PKGS || exit $?
   fi
