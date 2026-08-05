@@ -705,17 +705,6 @@ if $PYTHON; then
   fi
 fi
 
-# Helix grammars
-
-if [ "$DISTRO" = debian ] && ($DEVEL || $UPGRADE) \
-   && command -v hx > /dev/null \
-   && command -v git > /dev/null && command -v c++ > /dev/null; then
-  echo Setting up tree-sitter grammars for Helix
-  GIT_TERMINAL_PROMPT=0 hx --grammar fetch
-  hx --grammar build
-fi
-
-
 # Dotfiles
 
 if $DOTFILES; then
@@ -723,3 +712,13 @@ if $DOTFILES; then
   setup_dotfiles
 fi
 
+# Helix grammars
+
+if [ "$DISTRO" = debian ] && ($DEVEL || $UPGRADE) \
+   && [ -d $HOME/.config/helix ] \
+   && command -v hx > /dev/null \
+   && command -v git > /dev/null && command -v c++ > /dev/null; then
+  echo Setting up tree-sitter grammars for Helix
+  GIT_TERMINAL_PROMPT=0 hx --grammar fetch
+  hx --grammar build
+fi
