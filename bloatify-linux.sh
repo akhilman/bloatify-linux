@@ -179,7 +179,7 @@ case $DISTRO in
     )
 
     PYTHON_DISTRO_PKGS=$(echo \
-      ipython ruff uv ty \
+      ipython python-{lsp-server,rope} ruff uv ty \
     )
 
     RUST_DISTRO_PKGS=$(echo \
@@ -230,7 +230,7 @@ case $DISTRO in
 
     SIDEINSTALL_UV=true
     PYTHON_DISTRO_PKGS=$(echo \
-      ipython3 python3-{ipdb,isort,pylsp,numpy} \
+      ipython3 python3-{ipdb,isort,pylsp{,-rope},numpy} \
     )
     PYTHON_PIP_PKGS=$(echo \
       ruff ty \
@@ -280,7 +280,7 @@ case $DISTRO in
     )
 
     PYTHON_DISTRO_PKGS=$(echo \
-      python3-{ipython,isort,lsp-server,numpy} uv \
+      python3-{ipython,isort,lsp-server,numpy,rope} uv \
     )
     PYTHON_PIP_PKGS=$(echo \
       ruff ty \
