@@ -280,10 +280,10 @@ case $DISTRO in
     )
 
     PYTHON_DISTRO_PKGS=$(echo \
-      python3-{ipython,isort,lsp-server,numpy} ruff uv \
+      python3-{ipython,isort,lsp-server,numpy} uv \
     )
     PYTHON_PIP_PKGS=$(echo \
-      ty \
+      ruff ty \
     )
 
     RUST_DISTRO_PKGS=$(echo \
@@ -329,10 +329,10 @@ case $DISTRO in
 
     PYTHON_DISTRO_PATTERNS="devel_python3"
     PYTHON_DISTRO_PKGS=$(echo \
-      python:pyver:{,-{devel,ipython,pylsp-rope,python-lsp-server,ruff,uv}} \
+      python:pyver:{,-{devel,ipython,pylsp-rope,python-lsp-server,uv}} \
     )
     PYTHON_PIP_PKGS=$(echo \
-      ty \
+      ruff ty \
     )
 
     RUST_DISTRO_PKGS=$(echo \
