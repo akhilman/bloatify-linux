@@ -705,19 +705,21 @@ if $PYTHON; then
   fi
 fi
 
+# Helix grammars
+
+if [ "$DISTRO" = debian ] && ($DEVEL || $UPGRADE) \
+   && command -v hx > /dev/null \
+   && command -v git > /dev/null && command -v c++ > /dev/null; then
+  echo Setting up tree-sitter grammars for Helix
+  GIT_TERMINAL_PROMPT=0 hx --grammar fetch
+  hx --grammar build
+fi
+
+
 # Dotfiles
 
 if $DOTFILES; then
   echo Setting up dotfiles
   setup_dotfiles
-fi
-
-# Biuld helix stree-sitter parers
-
-if [ "$DISTRO" = debian ] && $BASIC && $DEVEL && command -v hx > /dev/null; then
-  echo "Run following commands to install helix grammar parsers:"
-  echo "hx --grammar fetch && hx --grammar build"
-  # fetch asks github passowrd
-  # It is ok to fail to build some parsers
 fi
 
