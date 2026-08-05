@@ -7,8 +7,6 @@ if [ $(id -u) -eq 0 ]; then
   exit 1
 fi
 
-SUDO=sudo
-
 BASIC=false
 CLANG=false
 DENO=false
@@ -106,6 +104,13 @@ version_ge() {
 deduplicate() {
   echo $(echo $@| tr '\n' ' ' | sort -u )
 }
+
+SUDO=sudo
+if command -v run0 > /dev/null && command -v pkaction > /dev/null \
+  && version_ge 127 $(pkaction --version | grep -o '[0-9]\+')
+  then
+  SUDO=run0
+fi
 
 BASIC_CARGO_PKGS=""
 BASIC_DISTRO_PKGS=""
