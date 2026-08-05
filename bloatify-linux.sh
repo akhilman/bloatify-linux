@@ -428,9 +428,9 @@ setup_dotfiles() {
 upgrade_dotfiles() {
   echo Updating dotfiles...
   command -v mr > /dev/null && [ -f $HOME/.mrconfig ] \
-    && env -C $HOME mr up || exit $?
+    && env -C $HOME mr up || return $?
   command -v fish > /dev/null && [ -f $HOME/.config/fish/Makefile ] \
-    && make -C $HOME/.config/fish update
+    && make -C $HOME/.config/fish update || return $?
 }
 
 # Shared volume
