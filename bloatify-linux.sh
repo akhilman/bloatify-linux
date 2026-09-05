@@ -720,6 +720,7 @@ if [ "$DISTRO" = debian ] && ($DEVEL || $UPGRADE) \
    && command -v hx > /dev/null \
    && command -v git > /dev/null && command -v c++ > /dev/null; then
   echo Setting up tree-sitter grammars for Helix
-  GIT_TERMINAL_PROMPT=0 hx --grammar fetch
+  env --unset=SSH_AUTH_SOCK --unset=SSH_ASKPASS GIT_TERMINAL_PROMPT=0 hx --grammar fetch
   hx --grammar build
+  true
 fi
