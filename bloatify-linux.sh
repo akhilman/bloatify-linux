@@ -407,6 +407,7 @@ setup_dotfiles() {
     && command -v deno > /dev/null \
     && env_files="$env_files 70-path-deno.conf"
   $DESKTOP && env_files="$env_files 50-pass.conf 50-gopass.conf 50-desktop-theme.conf 80-ssh-askpass.conf"
+  [ -S $XDG_RUNTIME_DIR/gcr/ssh ] && env_files="$env_files 80-gcr-ssh-agent.conf"
   for f in $env_files; do
     [ -e $env_dir/$f ] || env -C $env_dir ln -vs available/$f $f
   done
