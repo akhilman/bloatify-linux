@@ -557,7 +557,9 @@ if $UPGRADE; then
       deno upgrade || exit $?;
     fi
     echo Upgrading Deno tools...
-    # TODO
+    for pkg_file in $HOME/.deno/bin/.*/deno.json; do
+      env -C $(dirname $pkg_file) deno update
+    done
   fi
 
   if command -v uv > /dev/null; then
