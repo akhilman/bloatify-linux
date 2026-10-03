@@ -20,6 +20,22 @@ UPGRADE=false
 YES=false
 
 while [ $# -gt 0 ]; do
+  # Expand combined short flags: -but → -b -u -t
+  case $1 in
+    --*) ;; # long flag, don't expand
+    -?*)
+      if [ ${#1} -gt 2 ]; then
+        rest=${1#-}
+        shift
+        while [ -n "$rest" ]; do
+          set -- "$@" "-${rest%"${rest#?}"}"
+          rest=${rest#?}
+        done
+        continue
+      fi
+      ;;
+  esac
+
   case $1 in
     -b|--basic) # install basic tools
       BASIC=true;;
