@@ -147,6 +147,7 @@ RUST_PIP_PKGS=""
 
 SIDEINSTALL_DENO=false
 SIDEINSTALL_RUSTUP=false
+SIDEINSTALL_CARGO_BINSTALL=false
 SIDEINSTALL_UV=false
 
 case $DISTRO in
@@ -183,7 +184,7 @@ case $DISTRO in
     )
 
     RUST_DISTRO_PKGS=$(echo \
-      base-devel openssl rustup \
+      base-devel openssl rustup cargo-binstall \
     )
 
     DENO_DISTRO_PKGS=$(echo \
@@ -237,6 +238,7 @@ case $DISTRO in
     )
 
     SIDEINSTALL_RUSTUP=true
+    SIDEINSTALL_CARGO_BINSTALL=true
     RUST_DISTRO_PKGS=$(echo \
       build-essential pkg-config libssl-dev rustup \
     )
@@ -286,6 +288,7 @@ case $DISTRO in
       ruff ty \
     )
 
+    SIDEINSTALL_CARGO_BINSTALL=true
     RUST_DISTRO_PKGS=$(echo \
       pkg-config openssl-devel rustup \
     )
@@ -335,6 +338,7 @@ case $DISTRO in
       ruff ty \
     )
 
+    SIDEINSTALL_CARGO_BINSTALL=true
     RUST_DISTRO_PKGS=$(echo \
       rustup \
       libopenssl-devel \
@@ -658,9 +662,24 @@ if $RUST; then
     fi
   fi
 
+  if ! echo "$PATH" | tr ':' '\n' | grep -q "$HOME/.cargo/bin"; then
+    export PATH=$HOME/.cargo/bin:$PATH
+  fi
+
+  if $SIDEINSTALL_CARGO_BINSTALL; then
+    if ! command -v cargo-binstall > /dev/null; then
+      echo Installing cargo-binstall...
+      curl -L --proto '=https' --tlsv1.2 -sSf https://raw.githubusercontent.com/cargo-bins/cargo-binstall/main/install-from-binstall-release.sh | bash
+    fi
+  fi
+
   if [ -n "$CARGO_PKGS" ] && command -v cargo > /dev/null; then
     # Installing Rust tools
-    cargo install --locked $CARGO_PKGS || exit $?
+    if command -v cargo-binstall > /dev/null; then
+      cargo binstall --locked $installer_args $CARGO_PKGS || exit $?
+    else
+      cargo install --locked $CARGO_PKGS || exit $?
+    fi
   fi
 fi
 
