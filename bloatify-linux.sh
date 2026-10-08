@@ -645,6 +645,69 @@ if $FLATPAK; then
   flatpak remote-add --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo || exit $?
 fi
 
+# Kitten
+
+KITTEN_INSTALL_PATH="/usr/local/bin/kitten"
+
+is_kitten_upgradable() {
+  local kitten_version kitty_version
+
+  kitten_version=$(kitten --version | awk '{print $2}')
+  kitty_version=$(kitten query-terminal version | awk '/^version:/ {print $2}')
+
+  ! version_ge $kitty_version $kitten_version
+}
+
+install_kitten() {
+  case "$(uname -s):$(uname -m)" in
+      Linux:x86_64)
+          asset="kitten-linux-amd64"
+          ;;
+      Linux:aarch64)
+          asset="kitten-linux-arm64"
+          ;;
+      Darwin:x86_64)
+          asset="kitten-macos-amd64"
+          ;;
+      Darwin:arm64)
+          asset="kitten-macos-arm64"
+          ;;
+      *)
+          echo "Unsupported platform: $(uname -s) $(uname -m)" >&2
+          return 1
+          ;;
+  esac
+
+  curl -fL \
+      "https://github.com/kovidgoyal/kitty/releases/latest/download/$asset" \
+      -o "/tmp/$asset" \
+    && chmod +x "/tmp/$asset" \
+    && $SUDO chown root: /tmp/$asset \
+    && $SUDO mv /tmp/$asset $KITTEN_INSTALL_PATH
+}
+
+if $UPGRADE \
+  && [ -n "$KITTY_WINDOW_ID" ] \
+  && command -v kitten > /dev/null \
+  && is_kitten_upgradable
+then
+  echo Updating kitten...
+  kitten_path=$(command -v kitten)
+  if [ "$kitten_path" = "$KITTEN_INSTALL_PATH" ]; then
+    $SUDO $KITTEN_INSTALL_PATH update-self
+  elif [ -w "$kitten_path" ]; then
+    $kitten_path update-self
+  fi
+fi
+
+if $BASIC \
+  && [ -n "$KITTY_WINDOW_ID" ] \
+  && ! command -v kitten > /dev/null
+then
+  echo Installing kitten...
+  install_kitten
+fi
+
 # Rust
 
 if $RUST; then
