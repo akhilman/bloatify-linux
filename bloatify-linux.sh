@@ -688,16 +688,11 @@ install_kitten() {
 
 if $UPGRADE \
   && [ -n "$KITTY_WINDOW_ID" ] \
-  && command -v kitten > /dev/null \
+  && [ "$(command -v kitten)" = "$KITTEN_INSTALL_PATH" ] \
   && is_kitten_upgradable
 then
   echo Updating kitten...
-  kitten_path=$(command -v kitten)
-  if [ "$kitten_path" = "$KITTEN_INSTALL_PATH" ]; then
-    $SUDO $KITTEN_INSTALL_PATH update-self
-  elif [ -w "$kitten_path" ]; then
-    $kitten_path update-self
-  fi
+  $SUDO $KITTEN_INSTALL_PATH update-self
 fi
 
 if $BASIC \
