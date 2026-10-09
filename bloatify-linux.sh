@@ -366,112 +366,6 @@ case $DISTRO in
   ;;
 esac
 
-# Fix configuration
-
-fix_system_config() {
-  # Install documentation in containers
-  if [ -n "${container:-}" ]; then
-    case $DISTRO in
-      arch)
-        grep -q '^NoExtract\s*=\s*usr/share/man/\* usr/share/info/\*' /etc/pacman.conf \
-          && sudo sed -i 's/^\(NoExtract\s*=\s*usr\/share\/man\/\* usr\/share\/info\/\*\)/#\1/' /etc/pacman.conf ;;
-      fedora)
-        grep -q '^tsflags=nodocs' /etc/dnf/dnf.conf \
-          && sudo sed -i 's/^\(tsflags=nodocs\)/# \1/' /etc/dnf/dnf.conf ;;
-      opensuse)
-        grep -q '^rpm.install.excludedocs = yes' /etc/zypp/zypper.conf \
-          && sudo sed -i 's/^\(rpm.install.excludedocs = yes\)/# \1/' /etc/zypp/zypper.conf ;;
-    esac
-  fi
-
-  if [ "$DISTRO" = "fedora" ]; then
-    $SUDO dnf copr enable $DNF_ARGS atim/lazygit
-  fi
-}
-
-# Dot files
-
-setup_dotfiles() {
-  if [ -e $HOME/.config/vcsh/repo.d/dotfiles-mr.git ]; then
-    vcsh dotfiles-mr pull
-  else
-    vcsh clone https://github.com/akhilman/dotfiles-mr.git
-  fi
-
-  mr_config_dir=$HOME/.config/mr/config.d
-  mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git"
-  if $DESKTOP; then
-    mr_files="$mr_files dotfiles-desktop.vcsh"
-  fi
-  for f in $mr_files; do
-    if [ ! -e $mr_config_dir/../available.d/$f ]; then
-      echo Mr confing $f not exists
-      continue
-    fi
-    [ -e $mr_config_dir/$f ] || env -C $mr_config_dir ln -vs ../available.d/$f ./
-  done
-  env -C $HOME mr up
-
-  fish_path=$(command -v fish)
-  if [ -n "$fish_path" ]; then
-    make -C ~/.config/fish install
-    [ $(getent passwd $(id -u) | cut -d: -f7) = $fish_path ] \
-      || $SUDO usermod --shell $fish_path $(whoami)
-  fi
-
-  env_dir=$HOME/.config/environment.d
-  env_files=90-path-home-bin.conf
-  [ -d $HOME/.cargo/bin ] \
-    && command -v cargo > /dev/null \
-    && env_files="$env_files 70-path-cargo.conf"
-  [ -d $HOME/.deno/bin ] \
-    && command -v deno > /dev/null \
-    && env_files="$env_files 70-path-deno.conf"
-  $DESKTOP && env_files="$env_files 50-pass.conf 50-gopass.conf 50-desktop-theme.conf 80-ssh-askpass.conf"
-  [ -S $XDG_RUNTIME_DIR/gcr/ssh ] && env_files="$env_files 80-gcr-ssh-agent.conf"
-  for f in $env_files; do
-    [ -e $env_dir/$f ] || env -C $env_dir ln -vs available/$f $f
-  done
-
-  editor_env_file=$env_dir/80-editor.conf
-  if command -v helix > /dev/null; then
-    echo EDITOR="helix" | tee $editor_env_file
-  elif command -v hx > /dev/null; then
-    echo EDITOR="hx" | tee $editor_env_file
-  elif command -v nvim > /dev/null; then
-    echo EDITOR="nvim" | tee $editor_env_file
-  elif command -v vim > /dev/null; then
-    echo EDITOR="vim" | tee $editor_env_file
-  elif command -v nano > /dev/null; then
-    echo EDITOR="nano" | tee $editor_env_file
-  fi
-}
-
-upgrade_dotfiles() {
-  echo Updating dotfiles...
-  command -v mr > /dev/null && [ -f $HOME/.mrconfig ] \
-    && env -C $HOME mr up || return $?
-  command -v fish > /dev/null && [ -f $HOME/.config/fish/Makefile ] \
-    && make -C $HOME/.config/fish update || return $?
-}
-
-# Shared volume
-
-setup_shared() {
-  if [ -n "${container:-}" -a -d /mnt/shared ]; then
-    echo Setting up shared volume...
-    $SUDO chmod a+rwX /mnt/shared
-    for dir in $HOME/{.cargo,.rustup,.cache/{pip,deno}}; do
-      if [ ! -e $dir ]; then
-        cache_dir=/mnt/shared/cache/$(echo $dir | sed -n 's:.*/\.\?\(.\+\)$:\1:p')
-        mkdir -p $cache_dir
-        mkdir -p $(dirname $dir)
-        ln -s $cache_dir $dir
-      fi
-    done
-  fi
-}
-
 DISTRO_PATTERNS=""
 DISTRO_PKGS=""
 CARGO_PKGS=""
@@ -545,11 +439,40 @@ PIP_PKGS=$(deduplicate $PIP_PKGS)
 # Distro fixes
 
 if $BASIC; then
-  fix_system_config
-  setup_shared
+  # Install documentation in containers
+  if [ -n "${container:-}" ]; then
+    case $DISTRO in
+      arch)
+        grep -q '^NoExtract\s*=\s*usr/share/man/\* usr/share/info/\*' /etc/pacman.conf \
+          && sudo sed -i 's/^\(NoExtract\s*=\s*usr\/share\/man\/\* usr\/share\/info\/\*\)/#\1/' /etc/pacman.conf ;;
+      fedora)
+        grep -q '^tsflags=nodocs' /etc/dnf/dnf.conf \
+          && sudo sed -i 's/^\(tsflags=nodocs\)/# \1/' /etc/dnf/dnf.conf ;;
+      opensuse)
+        grep -q '^rpm.install.excludedocs = yes' /etc/zypp/zypper.conf \
+          && sudo sed -i 's/^\(rpm.install.excludedocs = yes\)/# \1/' /etc/zypp/zypper.conf ;;
+    esac
+
+    if [ -d /mnt/shared ]; then
+      echo Setting up shared volume...
+      $SUDO chmod a+rwX /mnt/shared
+      for dir in $HOME/{.cargo,.rustup,.cache/{pip,deno}}; do
+        if [ ! -e $dir ]; then
+          cache_dir=/mnt/shared/cache/$(echo $dir | sed -n 's:.*/\.\?\(.\+\)$:\1:p')
+          mkdir -p $cache_dir
+          mkdir -p $(dirname $dir)
+          ln -s $cache_dir $dir
+        fi
+      done
+    fi
+  fi
+
+  if [ "$DISTRO" = "fedora" ]; then
+    $SUDO dnf copr enable $DNF_ARGS atim/lazygit
+  fi
 fi
 
-# Upgrade
+# Install distro packages
 
 if $UPGRADE; then
   echo Upgrading distro...
@@ -566,57 +489,17 @@ if $UPGRADE; then
     opensuse)
       $SUDO zypper refresh && $SUDO zypper dist-upgrade $ZYPPER_ARGS ;;
   esac
-
-  if command -v flatpak > /dev/null; then
-    echo Upgrading flatpaks...
-    flatpak update $FLATPAK_ARGS
-  fi
-
-  if command -v deno > /dev/null; then
-    if test -w $(command -v deno); then
-      echo Upgrading Deno...
-      deno upgrade
-    fi
-    echo Upgrading Deno tools...
-    for pkg_file in $HOME/.deno/bin/.*/deno.json; do
-      env -C $(dirname $pkg_file) deno update
-    done
-  fi
-
-  if command -v uv > /dev/null; then
-    if test -w $(command -v uv); then
-      echo Upgrading UV...
-      uv self update
-    fi
-    echo Upgrading Python tools...
-    uv tool upgrade --all
-  fi
-
-  if command -v rustup > /dev/null; then
-    echo Upgrading Rustup...
-    rustup update
-  fi
-  if command -v cargo-install-update > /dev/null; then
-    echo Upgrading Rust tools...
-    cargo-install-update install-update --all --locked
-  fi
-
-  upgrade_dotfiles
 fi
-
-# Install distro packages
 
 case $DISTRO in
   arch)
     if [ -n "$DISTRO_PATTERNS" ] || [ -n "$DISTRO_PKGS" ]; then
       $SUDO pacman -S $PACMAN_ARGS $DISTRO_PATTERNS $DISTRO_PKGS
-    fi
-    ;;
+    fi ;;
   debian)
     if [ -n "$DISTRO_PATTERNS" ] || [ -n "$DISTRO_PKGS" ]; then
       $SUDO apt-get install $APT_ARGS $DISTRO_PATTERNS $DISTRO_PKGS
-    fi
-    ;;
+    fi ;;
   fedora)
     if [ -n "$DISTRO_PATTERNS" ]; then
       echo Unimplemented. Line $LINENO
@@ -624,8 +507,7 @@ case $DISTRO in
     fi
     if [ -n "$DISTRO_PKGS" ]; then
       $SUDO dnf install $DNF_ARGS $DISTRO_PKGS
-    fi
-    ;;
+    fi ;;
   opensuse)
     if [ -n "$DISTRO_PATTERNS" ]; then
       $SUDO zypper install $ZYPPER_ARGS -t pattern $DISTRO_PATTERNS
@@ -634,11 +516,15 @@ case $DISTRO in
       python_version=$(zypper info pattern:devel_python3 | grep -o 'python[0-9]\{2,5\}' | tail -n 1)
       DISTRO_PKGS=$(echo $DISTRO_PKGS | sed "s/python:pyver:/$python_version/g")
       $SUDO zypper install $ZYPPER_ARGS $DISTRO_PKGS
-    fi
-    ;;
+    fi ;;
 esac
 
 # Flatpak
+
+if $UPGRADE && command -v flatpak > /dev/null; then
+  echo Upgrading flatpaks...
+  flatpak update $FLATPAK_ARGS
+fi
 
 if $FLATPAK; then
   echo Setting up flatpak repos...
@@ -706,6 +592,18 @@ fi
 
 # Rust
 
+if $UPGRADE; then
+  if command -v rustup > /dev/null; then
+    echo Upgrading Rustup...
+    rustup update
+  fi
+
+  if command -v cargo-install-update > /dev/null; then
+    echo Upgrading Rust tools...
+    cargo-install-update install-update --all --locked
+  fi
+fi
+
 if $RUST; then
   if $YES; then
     installer_args="-y"
@@ -759,6 +657,17 @@ fi
 
 # Deno
 
+if $UPGRADE && command -v deno > /dev/null; then
+  if test -w $(command -v deno); then
+    echo Upgrading Deno...
+    deno upgrade
+  fi
+  echo Upgrading Deno tools...
+  for pkg_file in $HOME/.deno/bin/.*/deno.json; do
+    env -C $(dirname $pkg_file) deno update
+  done
+fi
+
 if $DENO; then
   if $YES; then
     installer_args="-y"
@@ -783,6 +692,15 @@ fi
 
 # Python
 
+if $UPGRADE && command -v uv > /dev/null; then
+  if test -w $(command -v uv); then
+    echo Upgrading UV...
+    uv self update
+  fi
+  echo Upgrading Python tools...
+  uv tool upgrade --all
+fi
+
 if $PYTHON; then
   if $SIDEINSTAL_UV; then
     if ! command -v uv &> /dev/null; then
@@ -801,6 +719,74 @@ if $PYTHON; then
 fi
 
 # Dotfiles
+
+upgrade_dotfiles() {
+  echo Updating dotfiles...
+  command -v mr > /dev/null && [ -f $HOME/.mrconfig ] \
+    && env -C $HOME mr up || return $?
+  command -v fish > /dev/null && [ -f $HOME/.config/fish/Makefile ] \
+    && make -C $HOME/.config/fish update || return $?
+}
+
+setup_dotfiles() {
+  if [ -e $HOME/.config/vcsh/repo.d/dotfiles-mr.git ]; then
+    vcsh dotfiles-mr pull
+  else
+    vcsh clone https://github.com/akhilman/dotfiles-mr.git
+  fi
+
+  mr_config_dir=$HOME/.config/mr/config.d
+  mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git"
+  if $DESKTOP; then
+    mr_files="$mr_files dotfiles-desktop.vcsh"
+  fi
+  for f in $mr_files; do
+    if [ ! -e $mr_config_dir/../available.d/$f ]; then
+      echo Mr confing $f not exists
+      continue
+    fi
+    [ -e $mr_config_dir/$f ] || env -C $mr_config_dir ln -vs ../available.d/$f ./
+  done
+  env -C $HOME mr up
+
+  fish_path=$(command -v fish)
+  if [ -n "$fish_path" ]; then
+    make -C ~/.config/fish install
+    [ $(getent passwd $(id -u) | cut -d: -f7) = $fish_path ] \
+      || $SUDO usermod --shell $fish_path $(whoami)
+  fi
+
+  env_dir=$HOME/.config/environment.d
+  env_files=90-path-home-bin.conf
+  [ -d $HOME/.cargo/bin ] \
+    && command -v cargo > /dev/null \
+    && env_files="$env_files 70-path-cargo.conf"
+  [ -d $HOME/.deno/bin ] \
+    && command -v deno > /dev/null \
+    && env_files="$env_files 70-path-deno.conf"
+  $DESKTOP && env_files="$env_files 50-pass.conf 50-gopass.conf 50-desktop-theme.conf 80-ssh-askpass.conf"
+  [ -S $XDG_RUNTIME_DIR/gcr/ssh ] && env_files="$env_files 80-gcr-ssh-agent.conf"
+  for f in $env_files; do
+    [ -e $env_dir/$f ] || env -C $env_dir ln -vs available/$f $f
+  done
+
+  editor_env_file=$env_dir/80-editor.conf
+  if command -v helix > /dev/null; then
+    echo EDITOR="helix" | tee $editor_env_file
+  elif command -v hx > /dev/null; then
+    echo EDITOR="hx" | tee $editor_env_file
+  elif command -v nvim > /dev/null; then
+    echo EDITOR="nvim" | tee $editor_env_file
+  elif command -v vim > /dev/null; then
+    echo EDITOR="vim" | tee $editor_env_file
+  elif command -v nano > /dev/null; then
+    echo EDITOR="nano" | tee $editor_env_file
+  fi
+}
+
+if $UPGRADE; then
+  upgrade_dotfiles
+fi
 
 if $DOTFILES; then
   echo Setting up dotfiles
