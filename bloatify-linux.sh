@@ -664,7 +664,11 @@ if $UPGRADE && command -v deno > /dev/null; then
   fi
   echo Upgrading Deno tools...
   for pkg_file in $HOME/.deno/bin/.*/deno.json; do
-    env -C $(dirname $pkg_file) deno update
+    pkg_dir=$(dirname $pkg_file)
+    pkg_name=$(basename $pkg_dir)
+    pkg_name=${pkg_name#.}
+    echo Upgrading $pkg_name...
+    env -C $pkg_dir deno update
   done
 fi
 
