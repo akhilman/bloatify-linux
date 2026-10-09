@@ -1,5 +1,6 @@
 #!/bin/bash
 
+set -eu
 # set -x
 
 if [ $(id -u) -eq 0 ]; then
@@ -369,7 +370,7 @@ esac
 
 fix_system_config() {
   # Install documentation in containers
-  if [ -n "$container" ]; then
+  if [ -n "${container:-}" ]; then
     case $DISTRO in
       arch)
         grep -q '^NoExtract\s*=\s*usr/share/man/\* usr/share/info/\*' /etc/pacman.conf \
@@ -384,7 +385,7 @@ fix_system_config() {
   fi
 
   if [ "$DISTRO" = "fedora" ]; then
-    $SUDO dnf copr enable $DNF_ARGS atim/lazygit || exit $?
+    $SUDO dnf copr enable $DNF_ARGS atim/lazygit
   fi
 }
 
@@ -392,9 +393,9 @@ fix_system_config() {
 
 setup_dotfiles() {
   if [ -e $HOME/.config/vcsh/repo.d/dotfiles-mr.git ]; then
-    vcsh dotfiles-mr pull || exit $?
+    vcsh dotfiles-mr pull
   else
-    vcsh clone https://github.com/akhilman/dotfiles-mr.git || exit $?
+    vcsh clone https://github.com/akhilman/dotfiles-mr.git
   fi
 
   mr_config_dir=$HOME/.config/mr/config.d
@@ -407,15 +408,15 @@ setup_dotfiles() {
       echo Mr confing $f not exists
       continue
     fi
-    [ -e $mr_config_dir/$f ] || env -C $mr_config_dir ln -vs ../available.d/$f ./ || exit $?
+    [ -e $mr_config_dir/$f ] || env -C $mr_config_dir ln -vs ../available.d/$f ./
   done
-  env -C $HOME mr up || exit $?
+  env -C $HOME mr up
 
   fish_path=$(command -v fish)
   if [ -n "$fish_path" ]; then
-    make -C ~/.config/fish install || exit $?
+    make -C ~/.config/fish install
     [ $(getent passwd $(id -u) | cut -d: -f7) = $fish_path ] \
-      || $SUDO usermod --shell $fish_path $(whoami) || exit $?
+      || $SUDO usermod --shell $fish_path $(whoami)
   fi
 
   env_dir=$HOME/.config/environment.d
@@ -457,7 +458,7 @@ upgrade_dotfiles() {
 # Shared volume
 
 setup_shared() {
-  if [ -n "$container" -a -d /mnt/shared ]; then
+  if [ -n "${container:-}" -a -d /mnt/shared ]; then
     echo Setting up shared volume...
     $SUDO chmod a+rwX /mnt/shared
     for dir in $HOME/{.cargo,.rustup,.cache/{pip,deno}}; do
@@ -554,27 +555,27 @@ if $UPGRADE; then
   echo Upgrading distro...
   case $DISTRO in
     arch)
-      $SUDO pacman -Suy $PACMAN_ARGS || exit $?
+      $SUDO pacman -Suy $PACMAN_ARGS
       if command -v paru > /dev/null; then
-        paru --mode=aur -Suy $PACMAN_ARGS || exit $?
+        paru --mode=aur -Suy $PACMAN_ARGS
       fi ;;
     debian)
-      $SUDO apt-get update && $SUDO apt-get upgrade $APT_ARGS || exit $? ;;
+      $SUDO apt-get update && $SUDO apt-get upgrade $APT_ARGS ;;
     fedora)
-      $SUDO dnf upgrade $DNF_ARGS || exit $? ;;
+      $SUDO dnf upgrade $DNF_ARGS ;;
     opensuse)
-      $SUDO zypper refresh && $SUDO zypper dist-upgrade $ZYPPER_ARGS || exit $? ;;
+      $SUDO zypper refresh && $SUDO zypper dist-upgrade $ZYPPER_ARGS ;;
   esac
 
   if command -v flatpak > /dev/null; then
     echo Upgrading flatpaks...
-    flatpak update $FLATPAK_ARGS || exit $?
+    flatpak update $FLATPAK_ARGS
   fi
 
   if command -v deno > /dev/null; then
     if test -w $(command -v deno); then
       echo Upgrading Deno...
-      deno upgrade || exit $?;
+      deno upgrade
     fi
     echo Upgrading Deno tools...
     for pkg_file in $HOME/.deno/bin/.*/deno.json; do
@@ -585,19 +586,19 @@ if $UPGRADE; then
   if command -v uv > /dev/null; then
     if test -w $(command -v uv); then
       echo Upgrading UV...
-      uv self update || exit $?
+      uv self update
     fi
     echo Upgrading Python tools...
-    uv tool upgrade --all || exit $?
+    uv tool upgrade --all
   fi
 
   if command -v rustup > /dev/null; then
     echo Upgrading Rustup...
-    rustup update || exit $?
+    rustup update
   fi
   if command -v cargo-install-update > /dev/null; then
     echo Upgrading Rust tools...
-    cargo-install-update install-update --all --locked || exit $?
+    cargo-install-update install-update --all --locked
   fi
 
   upgrade_dotfiles
@@ -608,12 +609,12 @@ fi
 case $DISTRO in
   arch)
     if [ -n "$DISTRO_PATTERNS" ] || [ -n "$DISTRO_PKGS" ]; then
-      $SUDO pacman -S $PACMAN_ARGS $DISTRO_PATTERNS $DISTRO_PKGS || exit $?
+      $SUDO pacman -S $PACMAN_ARGS $DISTRO_PATTERNS $DISTRO_PKGS
     fi
     ;;
   debian)
     if [ -n "$DISTRO_PATTERNS" ] || [ -n "$DISTRO_PKGS" ]; then
-      $SUDO apt-get install $APT_ARGS $DISTRO_PATTERNS $DISTRO_PKGS || exit $?
+      $SUDO apt-get install $APT_ARGS $DISTRO_PATTERNS $DISTRO_PKGS
     fi
     ;;
   fedora)
@@ -622,17 +623,17 @@ case $DISTRO in
       exit 1
     fi
     if [ -n "$DISTRO_PKGS" ]; then
-      $SUDO dnf install $DNF_ARGS $DISTRO_PKGS || exit $?
+      $SUDO dnf install $DNF_ARGS $DISTRO_PKGS
     fi
     ;;
   opensuse)
     if [ -n "$DISTRO_PATTERNS" ]; then
-      $SUDO zypper install $ZYPPER_ARGS -t pattern $DISTRO_PATTERNS || exit $?
+      $SUDO zypper install $ZYPPER_ARGS -t pattern $DISTRO_PATTERNS
     fi
     if [ -n "$DISTRO_PKGS" ]; then
       python_version=$(zypper info pattern:devel_python3 | grep -o 'python[0-9]\{2,5\}' | tail -n 1)
       DISTRO_PKGS=$(echo $DISTRO_PKGS | sed "s/python:pyver:/$python_version/g")
-      $SUDO zypper install $ZYPPER_ARGS $DISTRO_PKGS || exit $?
+      $SUDO zypper install $ZYPPER_ARGS $DISTRO_PKGS
     fi
     ;;
 esac
@@ -641,8 +642,8 @@ esac
 
 if $FLATPAK; then
   echo Setting up flatpak repos...
-  flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo || exit $?
-  flatpak remote-add --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo || exit $?
+  flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo
+  flatpak remote-add --if-not-exists gnome-nightly https://nightly.gnome.org/gnome-nightly.flatpakrepo
 fi
 
 # Kitten
@@ -716,8 +717,7 @@ if $RUST; then
     if ! command -v rustup > /dev/null; then
       echo Installing Rustup...
       curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs \
-        | sh -s - $installer_args \
-        || exit $?
+        | sh -s - $installer_args
       . "$HOME/.cargo/env"
     fi
   fi
@@ -725,14 +725,14 @@ if $RUST; then
   if [ "$DISTRO" == "fedora" ] \
       && command -v rustup-init > /dev/null \
       && ! command -v cargo > /dev/null; then
-    rustup-init $installer_args || exit $?
+    rustup-init $installer_args
     . $HOME/.cargo/env
   fi
 
   if command -v rustup > /dev/null; then
-    rustup default stable || exit $?
+    rustup default stable
     if $DEVEL; then
-      rustup component add rust-analyzer || exit $?
+      rustup component add rust-analyzer
     fi
   fi
 
@@ -750,9 +750,9 @@ if $RUST; then
   if [ -n "$CARGO_PKGS" ] && command -v cargo > /dev/null; then
     # Installing Rust tools
     if command -v cargo-binstall > /dev/null; then
-      cargo binstall --locked $installer_args $CARGO_PKGS || exit $?
+      cargo binstall --locked $installer_args $CARGO_PKGS
     else
-      cargo install --locked $CARGO_PKGS || exit $?
+      cargo install --locked $CARGO_PKGS
     fi
   fi
 fi
@@ -769,8 +769,7 @@ if $DENO; then
     if ! command -v deno > /dev/null; then
       echo Installing Deno...
       curl -fsSL https://deno.land/install.sh \
-        | sh -s - $installer_args \
-        || exit $?
+        | sh -s - $installer_args
       . $HOME/.deno/env
     fi
   fi
@@ -788,7 +787,7 @@ if $PYTHON; then
   if $SIDEINSTAL_UV; then
     if ! command -v uv &> /dev/null; then
       echo Installing UV...
-      curl -LsSf https://astral.sh/uv/install.sh | sh || exit $?
+      curl -LsSf https://astral.sh/uv/install.sh | sh
       . $HOME/.local/bin/env
     fi
   fi
@@ -796,7 +795,7 @@ if $PYTHON; then
   if [ -n "$PIP_PKGS" ]; then
     echo Installing Python tools...
     for pkg in $PIP_PKGS; do
-      uv tool install $pkg || exit $?
+      uv tool install $pkg
     done
   fi
 fi
@@ -814,8 +813,9 @@ if [ "$DISTRO" = debian ] && ($DEVEL || $UPGRADE) \
    && [ -d $HOME/.config/helix ] \
    && command -v hx > /dev/null \
    && command -v git > /dev/null && command -v c++ > /dev/null; then
+  # Both fetch and build fails on some of the grammars,
+  # so we just ignore faults.
   echo Setting up tree-sitter grammars for Helix
-  env --unset=SSH_AUTH_SOCK --unset=SSH_ASKPASS GIT_TERMINAL_PROMPT=0 hx --grammar fetch
-  hx --grammar build
-  true
+  env --unset=SSH_AUTH_SOCK --unset=SSH_ASKPASS GIT_TERMINAL_PROMPT=0 hx --grammar fetch || true
+  hx --grammar build || true
 fi
