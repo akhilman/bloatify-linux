@@ -122,11 +122,12 @@ deduplicate() {
   echo $(echo $@| tr '\n' ' ' | sort -u )
 }
 
-SUDO=sudo
 if command -v run0 > /dev/null && command -v pkaction > /dev/null \
   && version_ge 127 $(pkaction --version | grep -o '[0-9]\+')
   then
-  SUDO=run0
+  SUDO=${SUDO:-run0}
+else
+  SUDO=${SUDO:-sudo}
 fi
 
 BASIC_CARGO_PKGS=""
