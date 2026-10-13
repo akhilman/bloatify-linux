@@ -175,7 +175,7 @@ case $DISTRO in
       tmux \
       mr vcsh git make \
       )
-    if [ -n "$WAYLAND_DISPLAY" ]; then
+    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
         wl-clipboard \
         )
@@ -217,7 +217,7 @@ case $DISTRO in
       tmux \
       mr vcsh git make \
       )
-    if [ -n "$WAYLAND_DISPLAY" ]; then
+    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
         wl-clipboard \
         )
@@ -272,7 +272,7 @@ case $DISTRO in
       tmux \
       dnf-plugins-core \
       )
-    if [ -n "$WAYLAND_DISPLAY" ]; then
+    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
         wl-clipboard \
         )
@@ -322,7 +322,7 @@ case $DISTRO in
       mr vcsh git make \
       terminfo \
       )
-    if [ -n "$WAYLAND_DISPLAY" ]; then
+    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
         wl-clipboard{,-fish-completion} \
         )
@@ -574,7 +574,7 @@ install_kitten() {
 }
 
 if $UPGRADE \
-  && [ -n "$KITTY_WINDOW_ID" ] \
+  && [ -n "${KITTY_WINDOW_ID:-}" ] \
   && [ "$(command -v kitten)" = "$KITTEN_INSTALL_PATH" ] \
   && is_kitten_upgradable
 then
@@ -583,7 +583,7 @@ then
 fi
 
 if $BASIC \
-  && [ -n "$KITTY_WINDOW_ID" ] \
+  && [ -n "${KITTY_WINDOW_ID:-}" ] \
   && ! command -v kitten > /dev/null
 then
   echo Installing kitten...
