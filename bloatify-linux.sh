@@ -125,7 +125,7 @@ deduplicate() {
 if command -v run0 > /dev/null && command -v pkaction > /dev/null \
   && version_ge 127 $(pkaction --version | grep -o '[0-9]\+')
   then
-  SUDO=${SUDO:-run0}
+  SUDO=${SUDO:-run0 --pty}
 else
   SUDO=${SUDO:-sudo}
 fi
