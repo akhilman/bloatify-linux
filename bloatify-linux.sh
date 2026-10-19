@@ -119,7 +119,7 @@ version_ge() {
 }
 
 deduplicate() {
-  echo $(echo $@| tr '\n' ' ' | sort -u )
+  echo $(echo $@ | tr ' ' '\n' | sort -u | tr '\n' ' ')
 }
 
 if command -v run0 > /dev/null && command -v pkaction > /dev/null \
