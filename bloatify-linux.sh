@@ -707,7 +707,7 @@ if $UPGRADE && command -v uv > /dev/null; then
 fi
 
 if $PYTHON; then
-  if $SIDEINSTAL_UV; then
+  if $SIDEINSTALL_UV; then
     if ! command -v uv &> /dev/null; then
       echo Installing UV...
       curl -LsSf https://astral.sh/uv/install.sh | sh
