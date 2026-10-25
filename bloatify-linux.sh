@@ -180,6 +180,10 @@ case $DISTRO in
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
         wl-clipboard \
         )
+    elif [ -n "${DISPLAY:-}" ]; then
+      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
+        xclip \
+        )
     fi
     if [ "$TERM" = xterm-kitty ]; then
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
@@ -221,6 +225,10 @@ case $DISTRO in
     if [ -n "${WAYLAND_DISPLAY:-}" ]; then
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
         wl-clipboard \
+        )
+    elif [ -n "${DISPLAY:-}" ]; then
+      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
+        xclip \
         )
     fi
     if [ "$TERM" = xterm-kitty ]; then
@@ -277,6 +285,10 @@ case $DISTRO in
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
         wl-clipboard \
         )
+    elif [ -n "${DISPLAY:-}" ]; then
+      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
+        xclip \
+        )
     fi
     if [ "$TERM" = xterm-kitty ]; then
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
@@ -326,6 +338,10 @@ case $DISTRO in
     if [ -n "${WAYLAND_DISPLAY:-}" ]; then
       BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
         wl-clipboard{,-fish-completion} \
+        )
+    elif [ -n "${DISPLAY:-}" ]; then
+      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
+        xclip \
         )
     fi
     if [ "$TERM" = xterm-kitty ]; then
