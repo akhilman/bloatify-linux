@@ -130,320 +130,293 @@ else
   SUDO=${SUDO:-sudo}
 fi
 
-BASIC_CARGO_PKGS=""
-BASIC_DISTRO_PKGS=""
-BASIC_DISTRO_PATTERNS=""
-BASIC_NPM_PKGS=""
-BASIC_PIP_PKGS=""
-DENO_CARGO_PKGS=""
-DENO_DISTRO_PKGS=""
-DENO_DISTRO_PATTERNS=""
-DENO_NPM_PKGS=""
-DENO_PIP_PKGS=""
-DESKTOP_CARGO_PKGS=""
-DESKTOP_DISTRO_PKGS=""
-DESKTOP_DISTRO_PATTERNS=""
-DESKTOP_NPM_PKGS=""
-DESKTOP_PIP_PKGS=""
-DEVEL_CARGO_PKGS="$(echo cargo-{criterion,edit,machete,outdated,tree,expand})"
-DEVEL_DISTRO_PKGS=""
-DEVEL_DISTRO_PATTERNS=""
-DEVEL_NPM_PKGS=""
-DEVEL_PIP_PKGS=""
-FLATPAK_DISTRO_PKGS="flatpak"
-CLANG_DISTRO_PKGS=""
-PYTHON_CARGO_PKGS=""
-PYTHON_DISTRO_PKGS=""
-PYTHON_DISTRO_PATTERNS=""
-PYTHON_NPM_PKGS=""
-PYTHON_PIP_PKGS=""
-RUST_CARGO_PKGS=$(echo cargo-{cache,update})
-RUST_DISTRO_PKGS=""
-RUST_DISTRO_PATTERNS=""
-RUST_NPM_PKGS=""
-RUST_PIP_PKGS=""
+CARGO_PKGS=""
+DISTRO_PKGS=""
+DISTRO_PATTERNS=""
+NPM_PKGS=""
+PIP_PKGS=""
 
 SIDEINSTALL_DENO=false
 SIDEINSTALL_RUSTUP=false
 SIDEINSTALL_CARGO_BINSTALL=false
 SIDEINSTALL_UV=false
 
+if $DEVEL; then
+  CARGO_PKGS="$(echo $CARGO_PKGS cargo-{criterion,edit,machete,outdated,tree,expand})"
+fi
+
+if $FLATPAK; then
+  DISTRO_PKGS="$DISTRO_PKGS flatpak"
+fi
+
+if $RUST; then
+  CARGO_PKGS=$(echo $CARGO_PKGS cargo-{cache,update})
+fi
+
 case $DISTRO in
   arch)
-    BASIC_DISTRO_PKGS=$(echo \
-      which less curl wget gnupg fish htop unzip gettext \
-      helix ripgrep codebook-lsp \
-      tmux \
-      mr vcsh git make \
+    if $BASIC; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS\
+        which less curl wget gnupg fish htop unzip gettext \
+        helix ripgrep codebook-lsp \
+        tmux \
+        mr vcsh git make \
+        )
+      if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          wl-clipboard \
+          )
+      elif [ -n "${DISPLAY:-}" ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          xclip \
+          )
+      fi
+      if [ "$TERM" = xterm-kitty ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          kitty-terminfo \
+          )
+      fi
+    fi
+
+    if $DEVEL; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        lazygit \
+        base-devel valgrind gdb \
+        taplo-cli \
       )
-    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        wl-clipboard \
-        )
-    elif [ -n "${DISPLAY:-}" ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        xclip \
-        )
-    fi
-    if [ "$TERM" = xterm-kitty ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        kitty-terminfo \
-        )
     fi
 
-    DEVEL_DISTRO_PKGS=$(echo \
-      lazygit \
-      base-devel valgrind gdb \
-      taplo-cli \
-    )
+    if $CLANG; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+         clang{,-tools-extra} lldb \
+      )
+    fi
+  
+    if $PYTHON; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        ipython python-{lsp-server,rope} ruff uv ty \
+      )
+    fi
+  
+    if $RUST; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        base-devel openssl rustup cargo-binstall \
+      )
+    fi
 
-    CLANG_DISTRO_PKGS=$(echo \
-       clang{,-tools-extra} lldb \
-    )
-
-    PYTHON_DISTRO_PKGS=$(echo \
-      ipython python-{lsp-server,rope} ruff uv ty \
-    )
-
-    RUST_DISTRO_PKGS=$(echo \
-      base-devel openssl rustup cargo-binstall \
-    )
-
-    DENO_DISTRO_PKGS=$(echo \
-      deno \
-    )
+    if $DENO; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        deno \
+      )
+    fi
   ;;
 
   debian)
-    BASIC_DISTRO_PKGS=$(echo \
-      ca-certificates \
-      which less curl wget gnupg fish htop unzip gettext \
-      hx ripgrep \
-      tmux \
-      mr vcsh git make \
+    if $BASIC; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        ca-certificates \
+        which less curl wget gnupg fish htop unzip gettext \
+        hx ripgrep \
+        tmux \
+        mr vcsh git make \
+        )
+      if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          wl-clipboard \
+          )
+      elif [ -n "${DISPLAY:-}" ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          xclip \
+          )
+      fi
+      if [ "$TERM" = xterm-kitty ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          kitty-terminfo \
+          )
+      fi
+      CARGO_PKGS=$(echo $CARGO_PKGS \
+        codebook-lsp \
       )
-    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        wl-clipboard \
-        )
-    elif [ -n "${DISPLAY:-}" ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        xclip \
-        )
     fi
-    if [ "$TERM" = xterm-kitty ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        kitty-terminfo \
-        )
+
+    if $DEVEL; then
+      # libtree-sitter is required to bulid helix's parsers
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        build-essential \
+        lazygit \
+        valgrind gdb \
+        libtree-sitter-dev \
+      )
+      CARGO_PKGS=$(echo $CARGO_PKGS \
+        taplo-cli \
+      )
     fi
-    BASIC_CARGO_PKGS=$(echo \
-      codebook-lsp \
-    )
 
-    # libtree-sitter is required to bulid helix's parsers
-    DEVEL_DISTRO_PKGS=$(echo \
-      build-essential \
-      lazygit \
-      valgrind gdb \
-      libtree-sitter-dev \
-    )
-    DEVEL_CARGO_PKGS=$(echo $DEVEL_CARGO_PKGS \
-      taplo-cli \
-    )
+    if $CLANG; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        clang{,-tools} lldb \
+      )
+    fi
+  
+    if $PYTHON; then
+      SIDEINSTALL_UV=true
+        if $PYTHON; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          ipython3 python3-{ipdb,pylsp{,-rope},numpy} \
+        )
+        PIP_PKGS=$(echo $PIP_PKGS \
+          ruff ty \
+        )
+      fi
+    fi
+  
+    if $RUST; then
+      SIDEINSTALL_RUSTUP=true
+      SIDEINSTALL_CARGO_BINSTALL=true
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        build-essential pkg-config libssl-dev rustup \
+      )
+    fi
 
-    CLANG_DISTRO_PKGS=$(echo \
-      clang{,-tools} lldb \
-    )
-
-    SIDEINSTALL_UV=true
-    PYTHON_DISTRO_PKGS=$(echo \
-      ipython3 python3-{ipdb,pylsp{,-rope},numpy} \
-    )
-    PYTHON_PIP_PKGS=$(echo \
-      ruff ty \
-    )
-
-    SIDEINSTALL_RUSTUP=true
-    SIDEINSTALL_CARGO_BINSTALL=true
-    RUST_DISTRO_PKGS=$(echo \
-      build-essential pkg-config libssl-dev rustup \
-    )
-
-    SIDEINSTALL_DENO=true
+    if $DENO; then
+      SIDEINSTALL_DENO=true
+    fi
 
   ;;
 
   fedora)
-    BASIC_DISTRO_PKGS=$(echo \
-      which less curl wget gpg fish htop unzip gettext-envsubst \
-      helix ripgrep \
-      mr vcsh git make \
-      tmux \
-      dnf-plugins-core \
+    if $BASIC; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        which less curl wget gpg fish htop unzip gettext-envsubst \
+        helix ripgrep \
+        mr vcsh git make \
+        tmux \
+        dnf-plugins-core \
+        )
+      if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          wl-clipboard \
+          )
+      elif [ -n "${DISPLAY:-}" ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          xclip \
+          )
+      fi
+      if [ "$TERM" = xterm-kitty ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          kitty-terminfo \
+          )
+      fi
+      CARGO_PKGS=$(echo $CARGO_PKGS \
+        codebook-lsp \
       )
-    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        wl-clipboard \
-        )
-    elif [ -n "${DISPLAY:-}" ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        xclip \
-        )
     fi
-    if [ "$TERM" = xterm-kitty ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        kitty-terminfo \
-        )
+
+    if $DEVEL; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        lazygit \
+        valgrind gdb \
+      )
+      CARGO_PKGS=$(echo $CARGO_PKGS \
+        taplo-cli \
+      )
     fi
-    BASIC_CARGO_PKGS=$(echo \
-      codebook-lsp \
-    )
 
-    DEVEL_DISTRO_PKGS=$(echo \
-      lazygit \
-      valgrind gdb \
-    )
-    DEVEL_CARGO_PKGS=$(echo $DEVEL_CARGO_PKGS \
-      taplo-cli \
-    )
+    if $CLANG; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        clang{,-tools-extra} lldb \
+      )
+    fi
+  
+    if $PYTHON; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        python3-{ipython,lsp-server,numpy,rope} uv \
+      )
+      PIP_PKGS=$(echo $PIP_PKGS \
+        ruff ty \
+      )
+    fi
+  
+    if $RUST; then
+      SIDEINSTALL_CARGO_BINSTALL=true
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        pkg-config openssl-devel rustup \
+      )
+    fi
 
-    CLANG_DISTRO_PKGS=$(echo \
-      clang{,-tools-extra} lldb \
-    )
-
-    PYTHON_DISTRO_PKGS=$(echo \
-      python3-{ipython,lsp-server,numpy,rope} uv \
-    )
-    PYTHON_PIP_PKGS=$(echo \
-      ruff ty \
-    )
-
-    SIDEINSTALL_CARGO_BINSTALL=true
-    RUST_DISTRO_PKGS=$(echo \
-      pkg-config openssl-devel rustup \
-    )
-
-    SIDEINSTALL_DENO=true
+    if $DENO; then
+      SIDEINSTALL_DENO=true
+    fi
   ;;
 
   opensuse)
-    BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-      which less curl wget gpg fish htop unzip envsubst \
-      helix{,-runtime,-fish-completion} \
-      ripgrep ripgrep-fish-completion \
-      tmux \
-      mr vcsh git make \
-      terminfo \
+    if $BASIC; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        which less curl wget gpg fish htop unzip envsubst \
+        helix{,-runtime,-fish-completion} \
+        ripgrep ripgrep-fish-completion \
+        tmux \
+        mr vcsh git make \
+        terminfo \
+        )
+      if [ -n "${WAYLAND_DISPLAY:-}" ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          wl-clipboard{,-fish-completion} \
+          )
+      elif [ -n "${DISPLAY:-}" ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          xclip \
+          )
+      fi
+      if [ "$TERM" = xterm-kitty ]; then
+        DISTRO_PKGS=$(echo $DISTRO_PKGS \
+          kitty-terminfo \
+          )
+      fi
+      CARGO_PKGS=$(echo $CARGO_PKGS \
+        codebook-lsp \
       )
-    if [ -n "${WAYLAND_DISPLAY:-}" ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        wl-clipboard{,-fish-completion} \
-        )
-    elif [ -n "${DISPLAY:-}" ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        xclip \
-        )
     fi
-    if [ "$TERM" = xterm-kitty ]; then
-      BASIC_DISTRO_PKGS=$(echo $BASIC_DISTRO_PKGS \
-        kitty-terminfo \
-        )
+
+    if $DEVEL; then
+      DISTRO_PATTERNS="$DISTRO_PATTERNS devel_basis devel_C_C++"
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        lazygit \
+        valgrind gdb \
+        taplo \
+      )
     fi
-    BASIC_CARGO_PKGS=$(echo \
-      codebook-lsp \
-    )
 
-    DEVEL_DISTRO_PATTERNS="devel_basis devel_C_C++"
-    DEVEL_DISTRO_PKGS=$(echo \
-      lazygit \
-      valgrind gdb \
-      taplo \
-    )
+    if $CLANG; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        clang{,-tools} lldb \
+      )
+    fi
+  
+    if $PYTHON; then
+      DISTRO_PATTERNS="$DISTRO_PATTERNS devel_python3"
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        python:pyver:{,-{devel,ipython,pylsp-rope,python-lsp-server,uv}} \
+      )
+      PIP_PKGS=$(echo $PIP_PKGS \
+        ruff ty \
+      )
+    fi
+  
+    if $RUST; then
+      SIDEINSTALL_CARGO_BINSTALL=true
+      DISTRO_PKGS=$(echo $DISTRO_PKGS \
+        rustup \
+        libopenssl-devel \
+      )
+    fi
 
-    CLANG_DISTRO_PKGS=$(echo \
-      clang{,-tools} lldb \
-    )
-
-    PYTHON_DISTRO_PATTERNS="devel_python3"
-    PYTHON_DISTRO_PKGS=$(echo \
-      python:pyver:{,-{devel,ipython,pylsp-rope,python-lsp-server,uv}} \
-    )
-    PYTHON_PIP_PKGS=$(echo \
-      ruff ty \
-    )
-
-    SIDEINSTALL_CARGO_BINSTALL=true
-    RUST_DISTRO_PKGS=$(echo \
-      rustup \
-      libopenssl-devel \
-    )
-
-    DENO_DISTRO_PKGS=$(echo $DENO_DISTRO_PKGS 7zip)
-    SIDEINSTALL_DENO=true
+    if $DENO; then
+      DISTRO_PKGS=$(echo $DISTRO_PKGS 7zip)
+      SIDEINSTALL_DENO=true
+    fi
   ;;
 esac
-
-DISTRO_PATTERNS=""
-DISTRO_PKGS=""
-CARGO_PKGS=""
-NPM_PKGS=""
-PIP_PKGS=""
-
-if $BASIC; then
-  DISTRO_PATTERNS=$(echo $DISTRO_PATTERNS $BASIC_DISTRO_PATTERNS)
-  DISTRO_PKGS=$(echo $DISTRO_PKGS $BASIC_DISTRO_PKGS)
-  CARGO_PKGS=$(echo $CARGO_PKGS $BASIC_CARGO_PKGS)
-  NPM_PKGS=$(echo $NPM_PKGS $BASIC_NPM_PKGS)
-  PIP_PKGS=$(echo $PIP_PKGS $BASIC_PIP_PKGS)
-fi
-
-if $DESKTOP; then
-  DISTRO_PATTERNS=$(echo $DISTRO_PATTERNS $DESKTOP_DISTRO_PATTERNS)
-  DISTRO_PKGS=$(echo $DISTRO_PKGS $DESKTOP_DISTRO_PKGS)
-  CARGO_PKGS=$(echo $CARGO_PKGS $DESKTOP_CARGO_PKGS)
-  NPM_PKGS=$(echo $NPM_PKGS $DESKTOP_NPM_PKGS)
-  PIP_PKGS=$(echo $PIP_PKGS $DESKTOP_PIP_PKGS)
-fi
-
-if $FLATPAK; then
-  DISTRO_PKGS=$(echo $DISTRO_PKGS $FLATPAK_DISTRO_PKGS)
-fi
-
-if $DEVEL; then
-  DISTRO_PATTERNS=$(echo $DISTRO_PATTERNS $DEVEL_DISTRO_PATTERNS)
-  DISTRO_PKGS=$(echo $DISTRO_PKGS $DEVEL_DISTRO_PKGS)
-  CARGO_PKGS=$(echo $CARGO_PKGS $DEVEL_CARGO_PKGS)
-  NPM_PKGS=$(echo $NPM_PKGS $DEVEL_NPM_PKGS)
-  PIP_PKGS=$(echo $PIP_PKGS $DEVEL_PIP_PKGS)
-fi
-
-if $CLANG; then
-  DISTRO_PKGS=$(echo $DISTRO_PKGS $CLANG_DISTRO_PKGS)
-fi
-
-if $PYTHON; then
-  DISTRO_PATTERNS=$(echo $DISTRO_PATTERNS $PYTHON_DISTRO_PATTERNS)
-  DISTRO_PKGS=$(echo $DISTRO_PKGS $PYTHON_DISTRO_PKGS)
-  CARGO_PKGS=$(echo $CARGO_PKGS $PYTHON_CARGO_PKGS)
-  NPM_PKGS=$(echo $NPM_PKGS $PYTHON_NPM_PKGS)
-  PIP_PKGS=$(echo $PIP_PKGS $PYTHON_PIP_PKGS)
-fi
-
-if $RUST; then
-  DISTRO_PATTERNS=$(echo $DISTRO_PATTERNS $RUST_DISTRO_PATTERNS)
-  DISTRO_PKGS=$(echo $DISTRO_PKGS $RUST_DISTRO_PKGS)
-  CARGO_PKGS=$(echo $CARGO_PKGS $RUST_CARGO_PKGS)
-  NPM_PKGS=$(echo $NPM_PKGS $RUST_NPM_PKGS)
-  PIP_PKGS=$(echo $PIP_PKGS $RUST_PIP_PKGS)
-fi
-
-if $DENO; then
-  DISTRO_PATTERNS=$(echo $DISTRO_PATTERNS $DENO_DISTRO_PATTERNS)
-  DISTRO_PKGS=$(echo $DISTRO_PKGS $DENO_DISTRO_PKGS)
-  CARGO_PKGS=$(echo $CARGO_PKGS $DENO_CARGO_PKGS)
-  NPM_PKGS=$(echo $NPM_PKGS $DENO_NPM_PKGS)
-  PIP_PKGS=$(echo $PIP_PKGS $DENO_PIP_PKGS)
-fi
 
 # Deduplicate
 
@@ -485,7 +458,11 @@ if $BASIC; then
   fi
 
   if [ "$DISTRO" = "fedora" ]; then
-    $SUDO dnf copr enable $DNF_ARGS atim/lazygit
+    for repo in \
+      atim/lazygit 
+    do
+      $SODO dnf copr list | grep -q $REPO || $SUDO dnf copr enable $DNF_ARGS $repo
+    done
   fi
 fi
 
