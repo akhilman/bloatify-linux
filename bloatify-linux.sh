@@ -514,7 +514,7 @@ if $BASIC; then
 	if [ "$DISTRO" = "fedora" ]; then
 		for repo in \
 			atim/lazygit; do
-			$SODO dnf copr list | grep -q $REPO || $SUDO dnf copr enable $DNF_ARGS $repo
+			$SUDO dnf copr list | grep -q $repo|| $SUDO dnf copr enable $DNF_ARGS $repo
 		done
 	fi
 fi
