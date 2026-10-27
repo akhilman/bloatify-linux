@@ -574,6 +574,55 @@ opensuse)
 	;;
 esac
 
+# Dotfiles
+
+upgrade_dotfiles() {
+	command -v mr >/dev/null && [ -f $HOME/.mrconfig ] &&
+		env -C $HOME mr up
+	command -v fish >/dev/null && [ -f $HOME/.config/fish/Makefile ] &&
+		make -C $HOME/.config/fish update
+}
+
+setup_dotfiles() {
+	if [ -e $HOME/.config/vcsh/repo.d/dotfiles-mr.git ]; then
+		vcsh dotfiles-mr pull
+	else
+		vcsh clone https://github.com/akhilman/dotfiles-mr.git
+	fi
+
+	mr_config_dir=$HOME/.config/mr/config.d
+	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git"
+	if $DESKTOP; then
+		mr_files="$mr_files dotfiles-desktop.vcsh"
+	fi
+	for f in $mr_files; do
+		if [ ! -e $mr_config_dir/../available.d/$f ]; then
+			echo Mr confing $f not exists
+			continue
+		fi
+		[ -e $mr_config_dir/$f ] || env -C $mr_config_dir ln -vs ../available.d/$f ./
+	done
+	env -C $HOME mr up
+
+	fish_path=$(command -v fish)
+	if [ -n "$fish_path" ]; then
+		make -C ~/.config/fish install
+		[ $(getent passwd $(id -u) | cut -d: -f7) = $fish_path ] ||
+			$SUDO usermod --shell $fish_path $(whoami)
+	fi
+
+}
+
+if $UPGRADE; then
+	echo Updating dotfiles...
+	upgrade_dotfiles || true
+fi
+
+if $DOTFILES; then
+	echo Setting up dotfiles
+	setup_dotfiles
+fi
+
 # Flatpak
 
 if $UPGRADE && command -v flatpak >/dev/null; then
@@ -775,44 +824,7 @@ if $PYTHON; then
 	fi
 fi
 
-# Dotfiles
-
-upgrade_dotfiles() {
-	echo Updating dotfiles...
-	command -v mr >/dev/null && [ -f $HOME/.mrconfig ] &&
-		env -C $HOME mr up || return $?
-	command -v fish >/dev/null && [ -f $HOME/.config/fish/Makefile ] &&
-		make -C $HOME/.config/fish update || return $?
-}
-
-setup_dotfiles() {
-	if [ -e $HOME/.config/vcsh/repo.d/dotfiles-mr.git ]; then
-		vcsh dotfiles-mr pull
-	else
-		vcsh clone https://github.com/akhilman/dotfiles-mr.git
-	fi
-
-	mr_config_dir=$HOME/.config/mr/config.d
-	mr_files="dotfiles-mr.vcsh dotfiles-profile.vcsh config-fish.git config-helix.git"
-	if $DESKTOP; then
-		mr_files="$mr_files dotfiles-desktop.vcsh"
-	fi
-	for f in $mr_files; do
-		if [ ! -e $mr_config_dir/../available.d/$f ]; then
-			echo Mr confing $f not exists
-			continue
-		fi
-		[ -e $mr_config_dir/$f ] || env -C $mr_config_dir ln -vs ../available.d/$f ./
-	done
-	env -C $HOME mr up
-
-	fish_path=$(command -v fish)
-	if [ -n "$fish_path" ]; then
-		make -C ~/.config/fish install
-		[ $(getent passwd $(id -u) | cut -d: -f7) = $fish_path ] ||
-			$SUDO usermod --shell $fish_path $(whoami)
-	fi
-
+setup_environment_d() {
 	env_dir=$HOME/.config/environment.d
 	env_files=90-path-home-bin.conf
 	[ -d $HOME/.cargo/bin ] &&
@@ -841,13 +853,11 @@ setup_dotfiles() {
 	fi
 }
 
-if $UPGRADE; then
-	upgrade_dotfiles
-fi
+# Environment.d
 
 if $DOTFILES; then
-	echo Setting up dotfiles
-	setup_dotfiles
+	echo Setting up environment.d
+	setup_environment_d
 fi
 
 # Helix grammars
