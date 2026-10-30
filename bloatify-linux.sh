@@ -211,7 +211,7 @@ arch)
 	if $PYTHON; then
 		DISTRO_PKGS=$(
 			echo $DISTRO_PKGS \
-				ipython python-{lsp-server,rope} ruff uv ty
+				ipython ruff uv ty
 		)
 	fi
 
@@ -290,7 +290,7 @@ debian)
 		if $PYTHON; then
 			DISTRO_PKGS=$(
 				echo $DISTRO_PKGS \
-					ipython3 python3-{ipdb,pylsp{,-rope},numpy}
+					ipython3 python3-{ipdb,numpy}
 			)
 			PIP_PKGS=$(
 				echo $PIP_PKGS \
@@ -369,7 +369,7 @@ fedora)
 	if $PYTHON; then
 		DISTRO_PKGS=$(
 			echo $DISTRO_PKGS \
-				python3-{ipython,lsp-server,numpy,rope} uv
+				python3-{ipython,numpy} uv
 		)
 		PIP_PKGS=$(
 			echo $PIP_PKGS \
@@ -445,7 +445,7 @@ opensuse)
 		DISTRO_PATTERNS="$DISTRO_PATTERNS devel_python3"
 		DISTRO_PKGS=$(
 			echo $DISTRO_PKGS \
-				python:pyver:{,-{devel,ipython,pylsp-rope,python-lsp-server,uv}}
+				python:pyver:{,-{devel,ipython,uv}}
 		)
 		PIP_PKGS=$(
 			echo $PIP_PKGS \
