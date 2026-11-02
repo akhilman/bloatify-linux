@@ -879,7 +879,7 @@ if $PYTHON; then
 		if ! command -v uv &>/dev/null; then
 			echo Installing UV...
 			curl -LsSf https://astral.sh/uv/install.sh | sh
-			. $HOME/.local/bin/env
+			[ -f $HOME/.local/bin/env ] && . $HOME/.local/bin/env
 		fi
 	fi
 
