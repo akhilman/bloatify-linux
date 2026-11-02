@@ -409,6 +409,12 @@ opensuse-tumbleweed | opensuse-leap)
 				mr vcsh git make \
 				terminfo
 		)
+		if [ $DISTRO_ID = opensuse-leap ]; then
+			DISTRO_PKGS=$(
+				echo $DISTRO_PKGS \
+					python3
+			)
+		fi
 		if [ -n "${WAYLAND_DISPLAY:-}" ]; then
 			DISTRO_PKGS=$(
 				echo $DISTRO_PKGS \
