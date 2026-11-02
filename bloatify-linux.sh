@@ -457,6 +457,7 @@ opensuse-tumbleweed | opensuse-leap)
 
 	if $PYTHON; then
 		if [ $DISTRO_ID = opensuse-leap ]; then
+			SIDEINSTALL_UV=true
 			PIP_PKGS=$(
 				echo $PIP_PKGS \
 					ipython
@@ -465,12 +466,12 @@ opensuse-tumbleweed | opensuse-leap)
 			DISTRO_PATTERNS="$DISTRO_PATTERNS devel_python3"
 			DISTRO_PKGS=$(
 				echo $DISTRO_PKGS \
-					python:pyver:-ipython
+					python:pyver:-{ipython,uv}
 			)
 		fi
 		DISTRO_PKGS=$(
 			echo $DISTRO_PKGS \
-				python:pyver:{,-{devel,uv}}
+				python:pyver:{,-devel}
 		)
 		PIP_PKGS=$(
 			echo $PIP_PKGS \
