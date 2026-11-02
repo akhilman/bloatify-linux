@@ -1,6 +1,7 @@
 #!/bin/bash
 
 set -eu
+shopt -s nullglob # make glob return empty lists if no matches found
 # set -x
 
 if [ $(id -u) -eq 0 ]; then
