@@ -92,19 +92,24 @@ if $CLANG || $DOTFILES || $DEVEL || $DENO || $PYTHON || $RUST; then
 	BASIC=true
 fi
 
-if command -v apt-get >/dev/null; then
-	DISTRO=debian
-elif command -v dnf >/dev/null; then
-	DISTRO=fedora
-elif command -v pacman >/dev/null; then
-	DISTRO=arch
-elif command -v zypper >/dev/null; then
-	DISTRO=opensuse
-else
-	echo ERROR: Unsupported distro!
+DISTRO_ID=$(
+	source /etc/os-release
+	echo "${ID:-}"
+)
+DISTRO_ID_LIKE=$(
+	source /etc/os-release
+	echo "${ID_LIKE:-}"
+)
+DISTRO_VERSION=$(
+	source /etc/os-release
+	echo "${VERSION_ID:-}"
+)
+
+if [ -z "$DISTRO_ID" ]; then
+	echo ERROR: Can not detect the distro.
 	exit 1
 fi
-echo Distro: $DISTRO
+echo Distro: echo $DISTRO_ID $DISTRO_VERSION
 
 [ -f $HOME/.cargo/env ] && . $HOME/.cargo/env
 [ -f $HOME/.deno/env ] && . $HOME/.deno/env
@@ -117,12 +122,14 @@ PACMAN_ARGS="--needed"
 APT_ARGS="-o APT::Install-Suggests=0 -o APT::Install-Recommends=0"
 DNF_ARGS=""
 ZYPPER_ARGS=""
+ZYPPER_INSTALL_ARGS=""
 FLATPAK_ARGS=""
 if $YES; then
 	PACMAN_ARGS="$PACMAN_ARGS --noconfirm"
 	APT_ARGS="$APT_ARGS -y"
 	DNF_ARGS="$DNF_ARGS -y"
-	ZYPPER_ARGS="$ZYPPER_ARGS -y --force-resolution"
+	ZYPPER_ARGS="$ZYPPER_ARGS --gpg-auto-import-keys --non-interactive"
+	ZYPPER_INSTALL_ARGS="$ZYPPER_INSTALL_ARGS -y --force-resolution"
 	FLATPAK_ARGS="$FLATPAK_ARGS --assumeyes --noninteracpive"
 fi
 
@@ -164,8 +171,8 @@ if $RUST; then
 	CARGO_PKGS=$(echo $CARGO_PKGS cargo-{cache,update})
 fi
 
-case $DISTRO in
-arch)
+case $DISTRO_ID in
+arch | endeavouros | cachyos | garuda)
 	if $BASIC; then
 		DISTRO_PKGS=$(
 			echo $DISTRO_PKGS which less curl wget gnupg fish htop unzip gettext \
@@ -390,7 +397,7 @@ fedora)
 	fi
 	;;
 
-opensuse)
+opensuse-tumbleweed | opensuse-leap)
 	if $BASIC; then
 		DISTRO_PKGS=$(
 			echo $DISTRO_PKGS \
@@ -442,10 +449,21 @@ opensuse)
 	fi
 
 	if $PYTHON; then
-		DISTRO_PATTERNS="$DISTRO_PATTERNS devel_python3"
+		if [ $DISTRO_ID = opensuse-leap ]; then
+			PIP_PKGS=$(
+				echo $PIP_PKGS \
+					ipython
+			)
+		else
+			DISTRO_PATTERNS="$DISTRO_PATTERNS devel_python3"
+			DISTRO_PKGS=$(
+				echo $DISTRO_PKGS \
+					python:pyver:-ipython
+			)
+		fi
 		DISTRO_PKGS=$(
 			echo $DISTRO_PKGS \
-				python:pyver:{,-{devel,ipython,uv}}
+				python:pyver:{,-{devel,uv}}
 		)
 		PIP_PKGS=$(
 			echo $PIP_PKGS \
@@ -467,6 +485,11 @@ opensuse)
 		SIDEINSTALL_DENO=true
 	fi
 	;;
+*)
+	echo ERROR: Unsupported distro!
+	exit 1
+	;;
+
 esac
 
 # Deduplicate
@@ -479,11 +502,34 @@ PIP_PKGS=$(deduplicate $PIP_PKGS)
 
 # Distro fixes
 
+add_zypper_obs_repo() {
+	local name="$1"
+	local alias="$2"
+	local args=
+	local platform=
+
+	case $DISTRO_ID in
+	opensuse-tumbleweed) platform="openSUSE_Tumbleweed" ;;
+	opensuse-leap) platform="$DISTRO_VERSION" ;;
+	*)
+		echo Unsupported distro $DISTRO_ID $LINENO
+		exit 1
+		;;
+	esac
+
+	if zypper repos | cut -d'|' -f2 | tr -d ' ' | grep -q "^${alias}\b"; then
+		echo "[skip] ${alias} already exists"
+	else
+		$SUDO zypper $ZYPPER_ARGS addrepo -f "obs://${name}/${platform}" "${alias}"
+		echo "[done] ${alias} added"
+	fi
+}
+
 if $BASIC; then
 	# Install documentation in containers
 	if [ -n "${container:-}" ]; then
-		case $DISTRO in
-		arch)
+		case $DISTRO_ID in
+		arch | endeavouros | cachyos | garuda)
 			grep -q '^NoExtract\s*=\s*usr/share/man/\* usr/share/info/\*' /etc/pacman.conf &&
 				sudo sed -i 's/^\(NoExtract\s*=\s*usr\/share\/man\/\* usr\/share\/info\/\*\)/#\1/' /etc/pacman.conf
 			;;
@@ -491,7 +537,7 @@ if $BASIC; then
 			grep -q '^tsflags=nodocs' /etc/dnf/dnf.conf &&
 				sudo sed -i 's/^\(tsflags=nodocs\)/# \1/' /etc/dnf/dnf.conf
 			;;
-		opensuse)
+		opensuse-tumbleweed | opensuse-leap)
 			grep -q '^rpm.install.excludedocs = yes' /etc/zypp/zypper.conf &&
 				sudo sed -i 's/^\(rpm.install.excludedocs = yes\)/# \1/' /etc/zypp/zypper.conf
 			;;
@@ -511,11 +557,20 @@ if $BASIC; then
 		fi
 	fi
 
-	if [ "$DISTRO" = "fedora" ]; then
+	if [ "$DISTRO_ID" = "fedora" ]; then
 		for repo in \
 			atim/lazygit; do
-			$SUDO dnf copr list | grep -q $repo|| $SUDO dnf copr enable $DNF_ARGS $repo
+			$SUDO dnf copr list | grep -q $repo || $SUDO dnf copr enable $DNF_ARGS $repo
 		done
+	fi
+
+	if [ "$DISTRO_ID" = "opensuse-leap" ]; then
+		# devel:tools:scm (mr)
+		add_zypper_obs_repo "devel:tools:scm" "devel_tools_scm"
+
+		# editors (helix)
+		add_zypper_obs_repo "editors" "editors"
+
 	fi
 fi
 
@@ -523,8 +578,8 @@ fi
 
 if $UPGRADE; then
 	echo Upgrading distro...
-	case $DISTRO in
-	arch)
+	case $DISTRO_ID in
+	arch | endeavouros | cachyos | garuda)
 		$SUDO pacman -Suy $PACMAN_ARGS
 		if command -v paru >/dev/null; then
 			paru --mode=aur -Suy $PACMAN_ARGS
@@ -536,14 +591,14 @@ if $UPGRADE; then
 	fedora)
 		$SUDO dnf upgrade $DNF_ARGS
 		;;
-	opensuse)
-		$SUDO zypper refresh && $SUDO zypper dist-upgrade $ZYPPER_ARGS
+	opensuse-tumbleweed | opensuse-leap)
+		$SUDO zypper $ZYPPER_ARGS refresh && $SUDO zypper $ZYPPER_ARGS dist-upgrade $ZYPPER_INSTALL_ARGS
 		;;
 	esac
 fi
 
-case $DISTRO in
-arch)
+case $DISTRO_ID in
+arch | endeavouros | cachyos | garuda)
 	if [ -n "$DISTRO_PATTERNS" ] || [ -n "$DISTRO_PKGS" ]; then
 		$SUDO pacman -S $PACMAN_ARGS $DISTRO_PATTERNS $DISTRO_PKGS
 	fi
@@ -562,14 +617,18 @@ fedora)
 		$SUDO dnf install $DNF_ARGS $DISTRO_PKGS
 	fi
 	;;
-opensuse)
+opensuse-tumbleweed | opensuse-leap)
 	if [ -n "$DISTRO_PATTERNS" ]; then
-		$SUDO zypper install $ZYPPER_ARGS -t pattern $DISTRO_PATTERNS
+		$SUDO zypper $ZYPPER_ARGS install $ZYPPER_INSTALL_ARGS -t pattern $DISTRO_PATTERNS
 	fi
 	if [ -n "$DISTRO_PKGS" ]; then
-		python_version=$(zypper info pattern:devel_python3 | grep -o 'python[0-9]\{2,5\}' | tail -n 1)
+		if [ $DISTRO_ID = opensuse-leap ]; then
+			python_version=$(zypper search '/^python[0-9]+$/' | grep -o 'python[0-9]\+' | sort -n | tail -1)
+		else
+			python_version=$(zypper info pattern:devel_python3 | grep -o 'python[0-9]\+' | sort -n | tail -n 1)
+		fi
 		DISTRO_PKGS=$(echo $DISTRO_PKGS | sed "s/python:pyver:/$python_version/g")
-		$SUDO zypper install $ZYPPER_ARGS $DISTRO_PKGS
+		$SUDO zypper $ZYPPER_ARGS install $ZYPPER_INSTALL_ARGS $DISTRO_PKGS
 	fi
 	;;
 esac
@@ -722,7 +781,7 @@ if $RUST; then
 		fi
 	fi
 
-	if [ "$DISTRO" == "fedora" ] &&
+	if [ "$DISTRO_ID" == "fedora" ] &&
 		command -v rustup-init >/dev/null &&
 		! command -v cargo >/dev/null; then
 		rustup-init $installer_args
@@ -862,7 +921,7 @@ fi
 
 # Helix grammars
 
-if [ "$DISTRO" = debian ] && ($DEVEL || $UPGRADE) &&
+if [ "$DISTRO_ID" = debian ] && ($DEVEL || $UPGRADE) &&
 	[ -d $HOME/.config/helix ] &&
 	command -v hx >/dev/null &&
 	command -v git >/dev/null && command -v c++ >/dev/null; then
