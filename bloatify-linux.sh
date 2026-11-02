@@ -630,7 +630,7 @@ opensuse-tumbleweed | opensuse-leap)
 	fi
 	if [ -n "$DISTRO_PKGS" ]; then
 		if [ $DISTRO_ID = opensuse-leap ]; then
-			python_version=$(zypper search '/^python[0-9]+$/' | grep -o 'python[0-9]\+' | sort -n | tail -1)
+			python_version=$(zypper info --requires python3 | grep -wo 'python3[0-3]\+' | tail -n 1)
 		else
 			python_version=$(zypper info pattern:devel_python3 | grep -o 'python[0-9]\+' | sort -n | tail -n 1)
 		fi
