@@ -93,24 +93,15 @@ if $CLANG || $DOTFILES || $DEVEL || $DENO || $PYTHON || $RUST; then
 	BASIC=true
 fi
 
-DISTRO_ID=$(
-	source /etc/os-release
-	echo "${ID:-}"
-)
-DISTRO_ID_LIKE=$(
-	source /etc/os-release
-	echo "${ID_LIKE:-}"
-)
-DISTRO_VERSION=$(
-	source /etc/os-release
-	echo "${VERSION_ID:-}"
-)
+DISTRO_ID=$((grep -Po '^ID=\K.*' /etc/os-release || echo -n) | tr -d '"')
+DISTRO_ID_LIKE=$((grep -Po '^ID_LIKE=\K.*' /etc/os-release || echo $DISTRO_ID) | tr -d '"')
+DISTRO_VERSION_ID=$((grep -Po '^VERSION_ID=\K.*' /etc/os-release || grep -Po '^BUILD_ID=\K.*' /etc/os-release || echo -n) | tr -d '"')
 
 if [ -z "$DISTRO_ID" ]; then
 	echo ERROR: Can not detect the distro.
 	exit 1
 fi
-echo Distro: echo $DISTRO_ID $DISTRO_VERSION
+echo Distro: echo $DISTRO_ID $DISTRO_VERSION_ID
 
 [ -f $HOME/.cargo/env ] && . $HOME/.cargo/env
 [ -f $HOME/.deno/env ] && . $HOME/.deno/env
@@ -518,7 +509,7 @@ add_zypper_obs_repo() {
 
 	case $DISTRO_ID in
 	opensuse-tumbleweed) platform="openSUSE_Tumbleweed" ;;
-	opensuse-leap) platform="$DISTRO_VERSION" ;;
+	opensuse-leap) platform="$DISTRO_VERSION_ID" ;;
 	*)
 		echo Unsupported distro $DISTRO_ID $LINENO
 		exit 1
@@ -586,37 +577,37 @@ fi
 
 if $UPGRADE; then
 	echo Upgrading distro...
-	case $DISTRO_ID in
-	arch | endeavouros | cachyos | garuda)
+	case $DISTRO_ID_LIKE in
+	*arch*)
 		$SUDO pacman -Suy $PACMAN_ARGS
 		if command -v paru >/dev/null; then
 			paru --mode=aur -Suy $PACMAN_ARGS
 		fi
 		;;
-	debian)
+	*debian*)
 		$SUDO apt-get update && $SUDO apt-get upgrade $APT_ARGS
 		;;
-	fedora)
+	*fedora*)
 		$SUDO dnf upgrade $DNF_ARGS
 		;;
-	opensuse-tumbleweed | opensuse-leap)
+	*suse*)
 		$SUDO zypper $ZYPPER_ARGS refresh && $SUDO zypper $ZYPPER_ARGS dist-upgrade $ZYPPER_INSTALL_ARGS
 		;;
 	esac
 fi
 
-case $DISTRO_ID in
-arch | endeavouros | cachyos | garuda)
+case $DISTRO_ID_LIKE in
+*arch*)
 	if [ -n "$DISTRO_PATTERNS" ] || [ -n "$DISTRO_PKGS" ]; then
 		$SUDO pacman -S $PACMAN_ARGS $DISTRO_PATTERNS $DISTRO_PKGS
 	fi
 	;;
-debian)
+*debian*)
 	if [ -n "$DISTRO_PATTERNS" ] || [ -n "$DISTRO_PKGS" ]; then
 		$SUDO apt-get install $APT_ARGS $DISTRO_PATTERNS $DISTRO_PKGS
 	fi
 	;;
-fedora)
+*fedora*)
 	if [ -n "$DISTRO_PATTERNS" ]; then
 		echo Unimplemented. Line $LINENO
 		exit 1
@@ -625,7 +616,7 @@ fedora)
 		$SUDO dnf install $DNF_ARGS $DISTRO_PKGS
 	fi
 	;;
-opensuse-tumbleweed | opensuse-leap)
+*suse*)
 	if [ -n "$DISTRO_PATTERNS" ]; then
 		$SUDO zypper $ZYPPER_ARGS install $ZYPPER_INSTALL_ARGS -t pattern $DISTRO_PATTERNS
 	fi
